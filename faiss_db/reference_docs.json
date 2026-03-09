@@ -1,0 +1,32 @@
+[
+  {
+    "id": "bloom_remember",
+    "text": "Bloom's Remember: Retrieve knowledge. Use: define, list, recall, identify. Example: 'What is the definition of polymorphism?'",
+    "doc_type": "bloom_taxonomy",
+    "bloom_level": "remember"
+  },
+  {
+    "id": "bloom_understand",
+    "text": "Bloom's Understand: Construct meaning. Use: explain, summarize, compare, classify. Example: 'Explain how inheritance differs from composition.'",
+    "doc_type": "bloom_taxonomy",
+    "bloom_level": "understand"
+  },
+  {
+    "id": "bloom_apply",
+    "text": "Bloom's Apply: Use in new situations. Use: implement, solve, demonstrate. Example: 'Write a function using recursion to find the maximum.'",
+    "doc_type": "bloom_taxonomy",
+    "bloom_level": "apply"
+  },
+  {
+    "id": "bloom_analyze",
+    "text": "Bloom's Analyze: Break into parts. Use: compare, contrast, differentiate. Example: 'Compare time complexity of quicksort vs mergesort.'",
+    "doc_type": "bloom_taxonomy",
+    "bloom_level": "analyze"
+  },
+  {
+    "id": "best_practices",
+    "text": "Flashcard Best Practices: One concept per card. Specific questions. Concise answers. Avoid yes/no. Include context. Vary difficulty.",
+    "doc_type": "best_practices",
+    "bloom_level": null
+  }
+]

@@ -1,0 +1,103 @@
+{
+  "source_pdf": "Project_Traffic_data_analysis.pdf",
+  "provider": "huggingface",
+  "model": "meta-llama/Llama-3.1-8B-Instruct",
+  "content_type": "mixed",
+  "num_chunks": 20,
+  "stats": {
+    "total_generated": 5,
+    "auto_approved": 4,
+    "human_reviewed": 1,
+    "rejected": 0,
+    "final_deck_size": 5
+  },
+  "quality_scores": [
+    {
+      "question": "What is traffic data?",
+      "composite": 0.9,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 0.0,
+      "routing": "auto_approve"
+    },
+    {
+      "question": "Explain how Apache Kafka acts as a message broker between data sources and Spark.",
+      "composite": 0.81,
+      "groundedness": 0.8,
+      "clarity": 0.9,
+      "uniqueness": 0.7,
+      "difficulty_calibration": 0.8,
+      "routing": "auto_approve"
+    },
+    {
+      "question": "What is the difference between batch and streaming processing?",
+      "composite": 0.9,
+      "groundedness": 1.0,
+      "clarity": 0.9,
+      "uniqueness": 0.8,
+      "difficulty_calibration": 0.7,
+      "routing": "auto_approve"
+    },
+    {
+      "question": "Describe a use case for streaming processing.",
+      "composite": 0.74,
+      "groundedness": 1.0,
+      "clarity": 0.8,
+      "uniqueness": 0.2,
+      "difficulty_calibration": 0.6,
+      "routing": "human_review"
+    },
+    {
+      "question": "Compare the performance of streaming and batch modes in terms of processing time.",
+      "composite": 0.86,
+      "groundedness": 0.9,
+      "clarity": 0.9,
+      "uniqueness": 0.8,
+      "difficulty_calibration": 0.7,
+      "routing": "auto_approve"
+    }
+  ],
+  "flashcards": [
+    {
+      "question": "What is traffic data?",
+      "answer": "Traffic data refers to the information collected about the movement of vehicles and people on roads, highways, and other transportation systems.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "question_type": "definition",
+      "source_chunk_id": "chunk_2"
+    },
+    {
+      "question": "Explain how Apache Kafka acts as a message broker between data sources and Spark.",
+      "answer": "Apache Kafka acts as a message broker between data sources and Spark by receiving and storing large streams of traffic data, allowing Spark to process the data in real-time.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "question_type": "application",
+      "source_chunk_id": "chunk_5"
+    },
+    {
+      "question": "What is the difference between batch and streaming processing?",
+      "answer": "Batch processing involves processing data in fixed intervals of time or when a specific batch size is reached, whereas streaming processing involves processing data in real-time as it is generated.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_18"
+    },
+    {
+      "question": "Compare the performance of streaming and batch modes in terms of processing time.",
+      "answer": "The batch mode has better performance than the streaming mode in terms of processing time, indicating that the processing resources are capable of handling the workload efficiently.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "question_type": "comparison",
+      "source_chunk_id": "chunk_17"
+    },
+    {
+      "question": "Describe a use case for streaming processing.",
+      "answer": "Streaming processing is well-suited for applications that require real-time data processing and analysis, such as fraud detection, stock trading, and social media sentiment analysis.",
+      "difficulty": "medium",
+      "bloom_level": "apply",
+      "question_type": "application",
+      "source_chunk_id": "chunk_19"
+    }
+  ]
+}

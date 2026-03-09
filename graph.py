@@ -4,12 +4,12 @@ from typing import Literal, Optional
 from langgraph.graph import StateGraph, END
 from langgraph.checkpoint.memory import MemorySaver
 
-from models import FlashcardState, Flashcard, ScoredFlashcard, TeacherAction
+from core.models import FlashcardState, Flashcard, ScoredFlashcard, TeacherAction
 from vector_store import VectorStoreManager
-from llm_provider import create_llm
-from content_extraction import content_extraction_node
-from flashcard_generation import flashcard_generation_node
-from quality_check import quality_check_node
+from providers.llm_provider import create_llm
+from agents.content_extraction import content_extraction_node
+from agents.flashcard_generation import flashcard_generation_node
+from agents.quality_check import quality_check_node
 
 
 
@@ -42,17 +42,22 @@ def teacher_review_node(state: FlashcardState) -> dict:
     human_queue = state.get("human_queue", [])
     teacher_actions = state.get("teacher_actions", [])
     approved_cards = list(state.get("approved_cards", []))
+    rejected_cards = list(state.get("rejected_cards", []))
     teacher_edits = []
+    regeneration_requests = []
 
     if not teacher_actions:
         return {
             "teacher_edits": [],
+            "regeneration_requests": [],
+            "rejected_cards": rejected_cards,
             "final_deck": approved_cards,
         }
+        
 
     for action in teacher_actions:
         idx = action.card_index
-        if idx >= len(human_queue):
+        if idx < 0 or idx >= len(human_queue):
             continue
 
         scored_card = human_queue[idx]
@@ -73,14 +78,17 @@ def teacher_review_node(state: FlashcardState) -> dict:
             teacher_edits.append(edited_card)
 
         elif action.action == "reject":
-            pass
+            rejected_cards.append(scored_card)
 
         elif action.action == "regenerate":
-            pass
+            regeneration_requests.append(scored_card)
+            rejected_cards.append(scored_card)
 
     return {
         "approved_cards": approved_cards,
         "teacher_edits": teacher_edits,
+        "regeneration_requests": regeneration_requests,
+        "rejected_cards": rejected_cards,
         "final_deck": approved_cards,
     }
 
@@ -120,7 +128,7 @@ def build_flashcard_graph(
         quality_llm: LLM for quality scoring (can be same or different)
     """
     if llm is None:
-        llm = create_llm(provider="ollama", model="llama3.1")
+        llm = create_llm(provider="gemini")
     if quality_llm is None:
         quality_llm = llm  # Reuse the same LLM for quality checks
 
