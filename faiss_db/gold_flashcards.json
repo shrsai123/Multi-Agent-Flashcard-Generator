@@ -1,0 +1,72 @@
+[
+  {
+    "question": "What is the specific role of validation data during the process of model tuning and evaluation!!!",
+    "answer": "Validation data is used for model selection and parameter tuning, specifically for hyperparameters like regularization parameters.",
+    "difficulty": "medium",
+    "bloom_level": "understand",
+    "question_type": "concept"
+  },
+  {
+    "question": "What characteristic defines the intrinsic noise (_i) in the relationship between a dependent variable (yi) and its feature representation (Zi)?",
+    "answer": "Intrinsic noise (_i) is characterized by being independent of the specific model being used.",
+    "difficulty": "medium",
+    "bloom_level": "understand",
+    "question_type": "concept"
+  },
+  {
+    "question": "What is the primary role of a hidden layer in a Deep Neural Network!!!!!!!!!!",
+    "answer": "The primary role of a hidden layer in a Deep Neural Network is to store generalizations made by the model and to enable it to make predictions on its own.",
+    "difficulty": "medium",
+    "bloom_level": "understand",
+    "question_type": "concept"
+  },
+  {
+    "question": "How does the multivariable chain rule relate to the computation of derivatives in a computational graph !!!!!!!!!!!!_------------------------",
+    "answer": "The multivariable chain rule is used to compute the derivatives of a function in a computational graph by considering the product of local derivatives over all paths.",
+    "difficulty": "hard",
+    "bloom_level": "analyze",
+    "question_type": "concept"
+  },
+  {
+    "question": "What is Deep Learning? and what are the advantages of deep leraning??????",
+    "answer": "Deep Learning is a sub-field of machine learning in Artificial intelligence (A.I.) that uses algorithms inspired from the biological structure and functioning of a brain to aid machines with intelligence.",
+    "difficulty": "easy",
+    "bloom_level": "remember",
+    "question_type": "definition"
+  },
+  {
+    "question": "What is the primary role of a hidden layer in a Deep Neural Network!!!!!!!!!!",
+    "answer": "The primary role of a hidden layer in a Deep Neural Network is to store generalizations made by the model and to enable it to make predictions on its own.",
+    "difficulty": "medium",
+    "bloom_level": "understand",
+    "question_type": "concept"
+  },
+  {
+    "question": "How does the multivariable chain rule relate to the computation of derivatives in a computational graph !!!!!!!!!!!!_------------------------",
+    "answer": "The multivariable chain rule is used to compute the derivatives of a function in a computational graph by considering the product of local derivatives over all paths.",
+    "difficulty": "hard",
+    "bloom_level": "analyze",
+    "question_type": "concept"
+  },
+  {
+    "question": "What is Deep Learning and what are the advantages of deeplearning??",
+    "answer": "Deep Learning is a sub-field of machine learning in Artificial intelligence (A.I.) that uses algorithms inspired from the biological structure and functioning of a brain to aid machines with intelligence.",
+    "difficulty": "easy",
+    "bloom_level": "remember",
+    "question_type": "definition"
+  },
+  {
+    "question": "What is the main difference between Neural Networks and Deep Neural Networks !!!!!!!!!!!!!!!!!!!!!-----------",
+    "answer": "Neural networks give one result, while Deep Neural Networks provide solutions by globally solving problems based on the information given.",
+    "difficulty": "hard",
+    "bloom_level": "analyze",
+    "question_type": "comparison"
+  },
+  {
+    "question": "What is the multivariable chain rule in the context of Deep Neural Networks?!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!",
+    "answer": "The multivariable chain rule is used to calculate the derivative of the output with respect to the input in Deep Neural Networks, by considering the composition of functions at individual nodes.",
+    "difficulty": "hard",
+    "bloom_level": "analyze",
+    "question_type": "definition"
+  }
+]

@@ -413,16 +413,23 @@ hr { border: none !important; border-top: 1px solid var(--border) !important; ma
 # ═══════════════════════════════════════════════════════════
 # CONSTANTS & STATE
 # ═══════════════════════════════════════════════════════════
-TEACHER_PASSWORD = os.getenv("TEACHER_PASSWORD", "cardcraft2024")
+TEACHER_PASSWORD  = os.getenv("TEACHER_PASSWORD", "cardcraft2024")
+STUDENT_PASSWORD  = os.getenv("STUDENT_PASSWORD", "student2024")
 
 def init_state():
     defaults = {
+        "role": None,
+        "role_pw_error": False,
         "step": "upload",
         "chunks": [], "raw_cards": [], "scored_cards": [],
         "approved_cards": [], "human_queue": [], "rejected_cards": [],
         "content_type": "", "source_filename": "",
         "flip_states": {}, "review_decisions": {}, "edit_data": {},
-        "gold_count": 0, "teacher_authed": False, "pw_error": False,
+        "auto_edit_data": {}, "auto_edit_decisions": {},
+        "gold_count": 0, "gold_cards_session": [],
+        "published_deck": [],
+        "published_gold": [],
+        "teacher_authed": False, "pw_error": False,
         "gen_provider": "gemini", "gen_model": "gemini-2.5-flash",
         "gen_num_cards": 5, "gen_api_key": "",
     }
@@ -479,29 +486,52 @@ def routing_chip(decision):
     return chip("✗ auto-reject","reject")
 
 def nav_html():
-    order   = ["upload","generating","review","study"]
+    role    = st.session_state.get("role")
     current = st.session_state.step
-    ci      = order.index(current) if current in order else 0
-    labels  = ["Upload","Processing","Review","Study"]
-    pills   = "".join(
-        f'<span class="nav-step {"active" if k==current else ("done" if i<ci else "")}">{labels[i]}</span>'
-        for i, k in enumerate(order)
+
+    if role == "teacher":
+        order  = ["upload","generating","review","study"]
+        labels = ["Upload","Processing","Review","Study"]
+        ci     = order.index(current) if current in order else 0
+        pill_parts = []
+        for i, k in enumerate(order):
+            cls = "active" if k == current else ("done" if i < ci else "")
+            pill_parts.append('<span class="nav-step ' + cls + '">' + labels[i] + '</span>')
+        pills = "".join(pill_parts)
+        role_badge = '<span style="font-family:var(--font-m);font-size:0.65rem;color:#10b981;background:rgba(16,185,129,0.1);border:1px solid rgba(16,185,129,0.22);border-radius:99px;padding:0.2rem 0.65rem;">Teacher</span>'
+    elif role == "student":
+        pills = '<span class="nav-step active">Study</span>'
+        role_badge = '<span style="font-family:var(--font-m);font-size:0.65rem;color:var(--cyan);background:rgba(34,211,238,0.08);border:1px solid rgba(34,211,238,0.2);border-radius:99px;padding:0.2rem 0.65rem;">Student</span>'
+    else:
+        pills = '<span class="nav-step active">Welcome</span>'
+        role_badge = ""
+
+    return (
+        '<div class="topnav">'
+        '<div class="nav-brand">'
+        '<span class="nav-title">CardCraft</span>'
+        '<span class="nav-sub">by Northeastern Students</span>'
+        '</div>'
+        '<div style="display:flex;align-items:center;gap:0.75rem;">'
+        '<div class="nav-pill">' + pills + '</div>'
+        + role_badge +
+        '</div>'
+        '<div style="font-family:var(--font-m);font-size:0.68rem;color:var(--text3);">AI · HITL · Adaptive</div>'
+        '</div>'
     )
-    return f"""<div class="topnav">
-      <div class="nav-brand">
-        <span class="nav-title">CardCraft</span>
-        <span class="nav-sub">by Northeastern Students</span>
-      </div>
-      <div class="nav-pill">{pills}</div>
-      <div style="font-family:var(--font-m);font-size:0.68rem;color:var(--text3);">AI · HITL · Adaptive</div>
-    </div>"""
 
 def reset():
     keys = ["step","chunks","raw_cards","scored_cards","approved_cards","human_queue",
             "rejected_cards","content_type","source_filename","flip_states",
-            "review_decisions","edit_data","teacher_authed","pw_error"]
+            "review_decisions","edit_data","auto_edit_data","auto_edit_decisions",
+            "gold_cards_session","gold_count","teacher_authed","pw_error"]
     for k in keys:
         if k in st.session_state: del st.session_state[k]
+    init_state()
+
+def full_reset():
+    for k in list(st.session_state.keys()):
+        del st.session_state[k]
     init_state()
 
 # ── Page shell ──
@@ -545,9 +575,118 @@ st.markdown(nav_html(), unsafe_allow_html=True)
 
 
 # ═══════════════════════════════════════════════════════════════════
-# STEP 1 — UPLOAD
+# LANDING — ROLE SELECT
 # ═══════════════════════════════════════════════════════════════════
-if st.session_state.step == "upload":
+if st.session_state.role is None:
+
+    st.markdown("""
+    <div class="hero" style="padding-bottom:0.5rem">
+      <div class="hero-badge">✦ Multi-Agent Pipeline · Teacher-in-the-Loop</div>
+      <div class="hero-title">Welcome to CardCraft</div>
+      <div class="hero-sub">AI-powered flashcard generation with human expertise at the centre. Choose your role to get started.</div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    rc_l, rc_gap, rc_r = st.columns([1, 0.08, 1])
+
+    with rc_l:
+        st.markdown("""
+        <div style="background:var(--surface);border:1px solid rgba(16,185,129,0.22);border-radius:var(--radius);
+                    padding:2rem 2rem 1.6rem;text-align:center;">
+          <div style="margin-bottom:1rem;display:flex;justify-content:center;"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="rgba(16,185,129,0.12)"/><path d="M24 14L36 20L24 26L12 20L24 14Z" stroke="#10b981" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path d="M18 23v6c0 2.5 2.7 4 6 4s6-1.5 6-4v-6" stroke="#10b981" stroke-width="1.8" stroke-linecap="round" fill="none"/><path d="M36 20v7" stroke="#10b981" stroke-width="1.8" stroke-linecap="round"/><circle cx="36" cy="28.5" r="1.5" fill="#10b981"/></svg></div>
+          <div style="font-family:var(--font-d);font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;">I'm a Teacher</div>
+          <div style="font-size:0.8rem;color:var(--text3);line-height:1.65;margin-bottom:1.5rem;">
+            Upload PDFs, run the AI pipeline, review and edit generated cards, and build a gold example library that improves future generations.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;text-align:left;margin-bottom:1.5rem;">
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:#10b981;flex-shrink:0">✓</span> Full pipeline access (upload → generate → review)</div>
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:#10b981;flex-shrink:0">✓</span> Quality scores &amp; AI judge breakdown</div>
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:#10b981;flex-shrink:0">✓</span> Approve, edit, or reject every card</div>
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:#10b981;flex-shrink:0">✓</span> Edits stored as gold few-shot examples</div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+        teacher_pw = st.text_input("Teacher password", type="password",
+                                   placeholder="Enter teacher password…", key="landing_teacher_pw",
+                                   label_visibility="collapsed")
+        st.markdown("<div style='margin-top:0.5rem'></div>", unsafe_allow_html=True)
+        if st.button("Unlock Teacher Dashboard", use_container_width=True, key="btn_teacher"):
+            if teacher_pw == TEACHER_PASSWORD:
+                st.session_state.role = "teacher"
+                st.session_state.role_pw_error = False
+                st.rerun()
+            else:
+                st.session_state.role_pw_error = "teacher"
+                st.rerun()
+        if st.session_state.role_pw_error == "teacher":
+            st.markdown('<div style="font-size:0.78rem;color:#f43f5e;margin-top:0.4rem;text-align:center;">Incorrect teacher password</div>', unsafe_allow_html=True)
+
+    with rc_r:
+        st.markdown("""
+        <div style="background:var(--surface);border:1px solid rgba(34,211,238,0.2);border-radius:var(--radius);
+                    padding:2rem 2rem 1.6rem;text-align:center;">
+          <div style="margin-bottom:1rem;display:flex;justify-content:center;"><svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg"><rect width="48" height="48" rx="12" fill="rgba(34,211,238,0.1)"/><path d="M24 13L38 20L24 27L10 20L24 13Z" stroke="#22d3ee" stroke-width="1.8" stroke-linejoin="round" fill="none"/><path d="M17 23.5v6.5c0 2.8 3.1 4.5 7 4.5s7-1.7 7-4.5v-6.5" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round" fill="none"/><line x1="10" y1="20" x2="10" y2="28" stroke="#22d3ee" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="font-family:var(--font-d);font-size:1.25rem;font-weight:700;color:var(--text);margin-bottom:0.4rem;">I'm a Student</div>
+          <div style="font-size:0.8rem;color:var(--text3);line-height:1.65;margin-bottom:1.5rem;">
+            Study the teacher-curated flashcard deck. Flip cards, filter by difficulty and Bloom's level, and export to Anki.
+          </div>
+          <div style="display:flex;flex-direction:column;gap:0.5rem;text-align:left;margin-bottom:1.5rem;">
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:var(--cyan);flex-shrink:0">✓</span> Interactive flip-card study mode</div>
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:var(--cyan);flex-shrink:0">✓</span> Filter by difficulty &amp; Bloom's taxonomy</div>
+            <div style="font-size:0.76rem;color:var(--text2);display:flex;gap:0.5rem;"><span style="color:var(--cyan);flex-shrink:0">✓</span> Export to Anki-compatible TSV</div>
+            <div style="font-size:0.76rem;color:var(--text3);display:flex;gap:0.5rem;"><span style="color:#475569;flex-shrink:0">✗</span> No access to pipeline, scores, or gold store</div>
+          </div>
+        </div>""", unsafe_allow_html=True)
+        student_pw = st.text_input("Student password", type="password",
+                                   placeholder="Enter student password…", key="landing_student_pw",
+                                   label_visibility="collapsed")
+        st.markdown("<div style='margin-top:0.5rem'></div>", unsafe_allow_html=True)
+        if st.button("Enter Study Mode", use_container_width=True, key="btn_student"):
+            if student_pw == STUDENT_PASSWORD:
+                st.session_state.role = "student"
+                st.session_state.role_pw_error = False
+                st.rerun()
+            else:
+                st.session_state.role_pw_error = "student"
+                st.rerun()
+        if st.session_state.role_pw_error == "student":
+            st.markdown('<div style="font-size:0.78rem;color:#f43f5e;margin-top:0.4rem;text-align:center;">Incorrect student password</div>', unsafe_allow_html=True)
+
+    st.markdown("""
+    <div style="text-align:center;margin-top:2rem;font-size:0.71rem;color:var(--text3);line-height:1.8;">
+      Set <code style="color:var(--violet2)">TEACHER_PASSWORD</code> and
+      <code style="color:var(--violet2)">STUDENT_PASSWORD</code> in your <code>.env</code> to change credentials
+    </div>""", unsafe_allow_html=True)
+    st.stop()
+
+# ── Student gate — skip to study or show waiting screen ──────────
+elif st.session_state.role == "student":
+    if not st.session_state.published_deck:
+        st.markdown("""
+        <div style="text-align:center;padding:4rem 1rem 2rem;">
+          <div style="font-size:3rem;margin-bottom:1rem;"><svg width="40" height="40" viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg"><circle cx="20" cy="20" r="16" stroke="var(--text3)" stroke-width="1.8" fill="none"/><path d="M20 12v8l5 5" stroke="var(--text3)" stroke-width="1.8" stroke-linecap="round"/></svg></div>
+          <div style="font-family:var(--font-d);font-size:1.4rem;font-weight:700;margin-bottom:0.5rem;">Waiting for your teacher</div>
+          <div style="font-size:0.88rem;color:var(--text3);max-width:380px;margin:0 auto 2rem;line-height:1.65;">
+            Your teacher hasn't published a deck yet. Once they finalize the review, you'll be able to study here.
+          </div>
+        </div>""", unsafe_allow_html=True)
+        _, mid, _ = st.columns([1, 1, 1])
+        with mid:
+            if st.button("🔄 Refresh", use_container_width=True):
+                st.rerun()
+            st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+            if st.button("Switch Role", use_container_width=True):
+                full_reset(); st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        st.stop()
+    else:
+        st.session_state.approved_cards = st.session_state.published_deck
+        st.session_state.gold_cards_session = st.session_state.published_gold
+        st.session_state.step = "study"
+
+# ═══════════════════════════════════════════════════════════════════
+# STEP 1 — UPLOAD  (teacher only)
+# ═══════════════════════════════════════════════════════════════════
+if st.session_state.role == "teacher" and st.session_state.step == "upload":
 
     st.markdown("""
     <div class="hero">
@@ -711,7 +850,7 @@ if st.session_state.step == "upload":
 # ═══════════════════════════════════════════════════════════════════
 # STEP 2 — GENERATING
 # ═══════════════════════════════════════════════════════════════════
-elif st.session_state.step == "generating":
+elif st.session_state.role == "teacher" and st.session_state.step == "generating":
 
     st.markdown(f"""
     <div style="margin-bottom:1.75rem;">
@@ -806,7 +945,7 @@ elif st.session_state.step == "generating":
 # ═══════════════════════════════════════════════════════════════════
 # STEP 3 — TEACHER REVIEW  (Password Gated)
 # ═══════════════════════════════════════════════════════════════════
-elif st.session_state.step == "review":
+elif st.session_state.role == "teacher" and st.session_state.step == "review":
 
     # ── Password gate ──────────────────────────────────────────────
     if not st.session_state.teacher_authed:
@@ -886,7 +1025,7 @@ elif st.session_state.step == "review":
       <div class="metric-tile"><div class="m-val" style="color:#f59e0b">{len(human_queue)}</div><div class="m-lbl">Needs Review</div><div class="m-sub">score 0.50–0.80</div></div>
       <div class="metric-tile"><div class="m-val" style="color:#f43f5e">{len(rejected)}</div><div class="m-lbl">Auto-Rejected</div><div class="m-sub">score &lt; 0.50</div></div>
       <div class="metric-tile"><div class="m-val" style="color:var(--violet2)">{avg_score:.2f}</div><div class="m-lbl">Avg Quality</div></div>
-      <div class="metric-tile"><div class="m-val" style="color:var(--cyan)">{st.session_state.gold_count}</div><div class="m-lbl">Gold Examples</div></div>
+      <div class="metric-tile"><div class="m-val" style="color:var(--cyan)">{len(st.session_state.gold_cards_session)}</div><div class="m-lbl">Gold This Session</div></div>
     </div>""", unsafe_allow_html=True)
 
     tab_q, tab_met, tab_auto, tab_rej = st.tabs([
@@ -966,11 +1105,15 @@ elif st.session_state.step == "review":
                     st.markdown('</div>', unsafe_allow_html=True)
 
                 if decision == "edit":
-                    ed = edit_data.get(i, {"q":card.question,"a":card.answer})
+                    qkey, akey = f"eq_{i}", f"ea_{i}"
+                    if qkey not in st.session_state:
+                        st.session_state[qkey] = edit_data.get(i, {}).get("q", card.question)
+                    if akey not in st.session_state:
+                        st.session_state[akey] = edit_data.get(i, {}).get("a", card.answer)
                     with st.expander("✏️ Edit card", expanded=True):
-                        nq = st.text_area("Question", value=ed.get("q",card.question), key=f"eq_{i}", height=80)
-                        na = st.text_area("Answer",   value=ed.get("a",card.answer),   key=f"ea_{i}", height=80)
-                        edit_data[i] = {"q":nq,"a":na}
+                        st.text_area("Question", key=qkey, height=80)
+                        st.text_area("Answer",   key=akey, height=80)
+                    edit_data[i] = {"q": st.session_state[qkey], "a": st.session_state[akey]}
 
                 if decision:
                     labels = {"approve":"✓ Approved","edit":"✏️ Marked for editing","reject":"✗ Rejected"}
@@ -978,9 +1121,10 @@ elif st.session_state.step == "review":
                     st.markdown(f'<div style="font-size:0.75rem;color:{colors[decision]};margin-bottom:0.5rem;padding-left:0.2rem;">{labels[decision]}</div>', unsafe_allow_html=True)
                 st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
 
-        # ── Finalize bar ──
         st.markdown("<hr>", unsafe_allow_html=True)
-        total_final = len(auto_approved) + sum(1 for d in decisions.values() if d in ("approve","edit"))
+        auto_kept = len(auto_approved) - sum(1 for d in st.session_state.auto_edit_decisions.values() if d == "reject")
+        auto_edited_n = sum(1 for d in st.session_state.auto_edit_decisions.values() if d == "edit")
+        total_final = auto_kept + sum(1 for d in decisions.values() if d in ("approve","edit"))
         fc1, fc2 = st.columns([3,1])
         with fc1:
             st.markdown(f"""
@@ -989,14 +1133,33 @@ elif st.session_state.step == "review":
                 Final deck: <span style="color:var(--violet2)">{total_final} cards</span>
               </div>
               <div style="font-size:0.74rem;color:var(--text3);margin-top:0.15rem">
-                {len(auto_approved)} auto-approved + {sum(1 for d in decisions.values() if d in ("approve","edit"))} from review queue
+                {auto_kept} auto-approved ({auto_edited_n} edited) + {sum(1 for d in decisions.values() if d in ("approve","edit"))} from review queue
               </div>
             </div>""", unsafe_allow_html=True)
         with fc2:
             if st.button("📚 Finalize & Study →", use_container_width=True):
                 from core.models import Flashcard as FC
                 teacher_edits = []
-                final_approved = list(auto_approved)
+                final_approved = []
+
+                # ── Process auto-approved cards (keep / edit / reject) ──
+                auto_edit_data_fin      = st.session_state.auto_edit_data
+                auto_edit_decisions_fin = st.session_state.auto_edit_decisions
+                for ai, card in enumerate(auto_approved):
+                    dec = auto_edit_decisions_fin.get(ai)
+                    if dec == "reject":
+                        continue
+                    elif dec == "edit":
+                        ed = auto_edit_data_fin.get(ai, {})
+                        edited = FC(question=ed.get("q", card.question), answer=ed.get("a", card.answer),
+                                    difficulty=card.difficulty, bloom_level=card.bloom_level,
+                                    source_chunk_id=card.source_chunk_id, question_type=card.question_type)
+                        final_approved.append(edited)
+                        teacher_edits.append(edited)
+                    else:
+                        final_approved.append(card)
+
+                # ── Process human review queue ──
                 for i, sc in enumerate(human_queue):
                     card = sc.card
                     dec  = decisions.get(i,"reject")
@@ -1009,6 +1172,7 @@ elif st.session_state.step == "review":
                                     source_chunk_id=card.source_chunk_id, question_type=card.question_type)
                         final_approved.append(edited)
                         teacher_edits.append(edited)
+
                 if teacher_edits:
                     vs = get_vector_store()
                     for ed in teacher_edits:
@@ -1016,8 +1180,15 @@ elif st.session_state.step == "review":
                                                "difficulty":ed.difficulty,"bloom_level":ed.bloom_level,
                                                "question_type":ed.question_type})
                     st.session_state.gold_count = vs.get_gold_count()
-                st.session_state.approved_cards = final_approved
-                st.session_state.step = "study"; st.rerun()
+                gold_session = [{"question": e.question, "answer": e.answer, "difficulty": e.difficulty, "bloom_level": e.bloom_level, "question_type": e.question_type} for e in teacher_edits]
+                # ── Publish deck for students ──
+                st.session_state.published_deck = final_approved
+                st.session_state.published_gold = gold_session
+                # ── Reset teacher pipeline, go back to landing ──
+                reset()
+                st.session_state.role = None
+                st.success("Deck published! Students can now log in to study.")
+                st.rerun()
 
     # ── TAB 2: QUALITY METRICS ───────────────────────────────────
     with tab_met:
@@ -1064,22 +1235,85 @@ elif st.session_state.step == "review":
 
     # ── TAB 3: AUTO-APPROVED ─────────────────────────────────────
     with tab_auto:
+        auto_edit_data      = st.session_state.auto_edit_data
+        auto_edit_decisions = st.session_state.auto_edit_decisions
         if not auto_approved:
             st.info("No cards were auto-approved.")
         else:
-            st.markdown(f'<div class="sec-sub">{len(auto_approved)} cards scored ≥0.80 and passed automatically.</div>', unsafe_allow_html=True)
-            for card in auto_approved:
-                sc_m  = next((s for s in scored if s.card.question==card.question), None)
-                sc_txt = f"{sc_m.composite_score:.3f}" if sc_m else "—"
+            edited_auto_n = sum(1 for d in auto_edit_decisions.values() if d == "edit")
+            rejected_auto_n = sum(1 for d in auto_edit_decisions.values() if d == "reject")
+            st.markdown(f"""
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1.25rem;">
+              <div>
+                <div style="font-size:0.9rem;font-weight:600;">{len(auto_approved)} cards scored ≥0.80 and passed automatically</div>
+                <div style="font-size:0.77rem;color:var(--text3);margin-top:0.12rem;">You can still edit or reject any card. Edits are stored as gold examples.</div>
+              </div>
+              <div style="font-family:var(--font-m);font-size:0.76rem;color:var(--text3);
+                          background:var(--surface2);border:1px solid var(--border);
+                          border-radius:99px;padding:0.28rem 0.85rem;flex-shrink:0;">
+                {edited_auto_n} edited · {rejected_auto_n} rejected
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            for ai, card in enumerate(auto_approved):
+                sc_m     = next((s for s in scored if s.card.question == card.question), None)
+                sc_txt   = f"{sc_m.composite_score:.3f}" if sc_m else "—"
+                decision = auto_edit_decisions.get(ai)
+                border   = {"edit":"rgba(139,92,246,0.38)", "reject":"rgba(244,63,94,0.3)"}.get(decision, "rgba(16,185,129,0.18)")
+
+                _disp_q = st.session_state.get(f"aeq_{ai}", auto_edit_data.get(ai, {}).get("q", card.question)) if decision == "edit" else card.question
+                _disp_a = st.session_state.get(f"aea_{ai}", auto_edit_data.get(ai, {}).get("a", card.answer)) if decision == "edit" else card.answer
                 st.markdown(f"""
-                <div class="rcard card-glow">
+                <div class="rcard" style="border-color:{border}">
                   <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.5rem">
                     <div>{diff_chip(card.difficulty)}{chip(card.bloom_level,'bloom')}{chip(card.question_type,'type')}</div>
-                    <span style="font-family:var(--font-m);font-size:0.78rem;color:#10b981;font-weight:600">{sc_txt}</span>
+                    <div style="display:flex;align-items:center;gap:0.5rem;flex-shrink:0;">
+                      {chip("✓ auto-approve","approve")}
+                      <span style="font-family:var(--font-m);font-size:0.78rem;color:#10b981;font-weight:600">{sc_txt}</span>
+                    </div>
                   </div>
-                  <div class="rcard-q">Q: {card.question}</div>
-                  <div class="rcard-a">A: {card.answer}</div>
+                  <div class="rcard-q">Q: {_disp_q}</div>
+                  <div class="rcard-a">A: {_disp_a}</div>
                 </div>""", unsafe_allow_html=True)
+
+                ac1, ac2, ac3 = st.columns(3)
+                with ac1:
+                    st.markdown('<div class="btn-approve">', unsafe_allow_html=True)
+                    if st.button("✓ Keep", key=f"aacc_{ai}", use_container_width=True):
+                        auto_edit_decisions.pop(ai, None)
+                        auto_edit_data.pop(ai, None)
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
+                with ac2:
+                    st.markdown('<div class="btn-edit">', unsafe_allow_html=True)
+                    if st.button("✏️ Edit", key=f"aedt_{ai}", use_container_width=True):
+                        auto_edit_decisions[ai] = "edit"; st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
+                with ac3:
+                    st.markdown('<div class="btn-reject">', unsafe_allow_html=True)
+                    if st.button("✗ Reject", key=f"arej_{ai}", use_container_width=True):
+                        auto_edit_decisions[ai] = "reject"
+                        auto_edit_data.pop(ai, None)
+                        st.rerun()
+                    st.markdown('</div>', unsafe_allow_html=True)
+
+                if decision == "edit":
+                    qkey, akey = f"aeq_{ai}", f"aea_{ai}"
+                    if qkey not in st.session_state:
+                        st.session_state[qkey] = auto_edit_data.get(ai, {}).get("q", card.question)
+                    if akey not in st.session_state:
+                        st.session_state[akey] = auto_edit_data.get(ai, {}).get("a", card.answer)
+                    with st.expander("✏️ Edit card", expanded=True):
+                        st.text_area("Question", key=qkey, height=80)
+                        st.text_area("Answer",   key=akey, height=80)
+                    auto_edit_data[ai] = {"q": st.session_state[qkey], "a": st.session_state[akey]}
+
+                if decision:
+                    labels = {"edit": "✏️ Marked for editing — will be stored as gold example", "reject": "✗ Will be removed from final deck"}
+                    colors = {"edit": "#a78bfa", "reject": "#f43f5e"}
+                    st.markdown(f'<div style="font-size:0.75rem;color:{colors[decision]};margin-bottom:0.5rem;padding-left:0.2rem;">{labels[decision]}</div>', unsafe_allow_html=True)
+
+                st.markdown("<div style='height:4px'></div>", unsafe_allow_html=True)
 
     # ── TAB 4: AUTO-REJECTED ─────────────────────────────────────
     with tab_rej:
@@ -1113,7 +1347,7 @@ elif st.session_state.step == "study":
 
     if not final_deck:
         st.warning("No approved cards.")
-        if st.button("↩ Back to Review"): st.session_state.step="review"; st.rerun()
+        if st.session_state.role == "teacher" and st.button("↩ Back to Review"): st.session_state.step="review"; st.rerun()
         st.stop()
 
     sh, sb = st.columns([3,1])
@@ -1124,28 +1358,69 @@ elif st.session_state.step == "study":
           <div class="sec-sub"><b style="color:var(--text)">{st.session_state.source_filename}</b> · {len(final_deck)} cards · {st.session_state.content_type}</div>
         </div>""", unsafe_allow_html=True)
     with sb:
-        sb1, sb2 = st.columns(2)
-        with sb1:
+        if st.session_state.role == "teacher":
+            sb1, sb2 = st.columns(2)
+            with sb1:
+                st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+                if st.button("← Review", use_container_width=True): st.session_state.step="review"; st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            with sb2:
+                st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+                if st.button("↩ New Upload", use_container_width=True): reset(); st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+
+        else:
             st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-            if st.button("← Review", use_container_width=True): st.session_state.step="review"; st.rerun()
-            st.markdown('</div>', unsafe_allow_html=True)
-        with sb2:
-            st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-            if st.button("↩ New", use_container_width=True): reset(); st.rerun()
+            if st.button("Switch Role", use_container_width=True): full_reset(); st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
 
-    st.markdown(f"""
-    <div class="metric-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:1.5rem">
-      <div class="metric-tile"><div class="m-val" style="color:var(--violet2)">{len(final_deck)}</div><div class="m-lbl">Final Cards</div></div>
-      <div class="metric-tile"><div class="m-val" style="color:var(--cyan)">{st.session_state.content_type or "—"}</div><div class="m-lbl">Content Type</div></div>
-      <div class="metric-tile"><div class="m-val" style="color:#f59e0b">{st.session_state.gold_count}</div><div class="m-lbl">Gold Examples</div></div>
-      <div class="metric-tile"><div class="m-val">{avg_s:.2f}</div><div class="m-lbl">Avg Quality</div></div>
-    </div>""", unsafe_allow_html=True)
+    if st.session_state.role == "teacher":
+        st.markdown(f"""
+        <div class="metric-strip" style="grid-template-columns:repeat(4,1fr);margin-bottom:1rem">
+          <div class="metric-tile"><div class="m-val" style="color:var(--violet2)">{len(final_deck)}</div><div class="m-lbl">Final Cards</div></div>
+          <div class="metric-tile"><div class="m-val" style="color:var(--cyan)">{st.session_state.content_type or "—"}</div><div class="m-lbl">Content Type</div></div>
+          <div class="metric-tile"><div class="m-val" style="color:#f59e0b">{len(st.session_state.gold_cards_session)}</div><div class="m-lbl">Gold Examples</div><div class="m-sub">stored this session</div></div>
+          <div class="metric-tile"><div class="m-val">{avg_s:.2f}</div><div class="m-lbl">Avg Quality</div></div>
+        </div>""", unsafe_allow_html=True)
+    else:
+        st.markdown(f"""
+        <div class="metric-strip" style="grid-template-columns:repeat(2,1fr);margin-bottom:1rem">
+          <div class="metric-tile"><div class="m-val" style="color:var(--violet2)">{len(final_deck)}</div><div class="m-lbl">Cards to Study</div></div>
+          <div class="metric-tile"><div class="m-val" style="color:var(--cyan)">{st.session_state.content_type or "—"}</div><div class="m-lbl">Content Type</div></div>
+        </div>""", unsafe_allow_html=True)
 
-    tab_fc, tab_list, tab_mets, tab_exp = st.tabs([
-        "🃏 Flashcards", "📋 Card List",
-        f"📊 Quality Metrics ({len(scored)})", "💾 Export"
-    ])
+    if st.session_state.gold_cards_session:
+        _gold = st.session_state.gold_cards_session
+        _is_teacher = st.session_state.role == "teacher"
+        _label = (
+            f"★ {len(_gold)} gold example{'s' if len(_gold)!=1 else ''} stored this session"
+            if _is_teacher else
+            f"★ {len(_gold)} teacher-curated example{'s' if len(_gold)!=1 else ''} for this deck"
+        )
+        gold_rows = "".join(
+            f"""<div style="padding:0.65rem 0;border-bottom:1px solid var(--border);">
+              <div style="display:flex;align-items:center;gap:0.5rem;margin-bottom:0.22rem;">
+                <span style="font-family:var(--font-m);font-size:0.62rem;color:#f59e0b;background:rgba(245,158,11,0.1);
+                             border:1px solid rgba(245,158,11,0.25);border-radius:99px;padding:0.1rem 0.5rem;">★ gold</span>
+                {diff_chip(g['difficulty'])}{chip(g['bloom_level'],'bloom')}
+              </div>
+              <div style="font-size:0.86rem;font-weight:600;color:var(--text);line-height:1.45;margin-bottom:0.18rem;">Q: {g['question']}</div>
+              <div style="font-size:0.82rem;color:var(--cyan);line-height:1.45;">A: {g['answer']}</div>
+            </div>"""
+            for g in _gold
+        )
+        with st.expander(_label, expanded=True):
+            st.markdown(f'<div style="padding:0 0.2rem">{gold_rows}</div>', unsafe_allow_html=True)
+        st.markdown("<div style='height:0.75rem'></div>", unsafe_allow_html=True)
+
+    if st.session_state.role == "teacher":
+        tab_fc, tab_list, tab_mets, tab_exp = st.tabs([
+            "🃏 Flashcards", "📋 Card List",
+            f"📊 Quality Metrics ({len(scored)})", "💾 Export"
+        ])
+    else:
+        tab_fc, tab_list, tab_exp = st.tabs(["🃏 Flashcards", "📋 Card List", "💾 Export"])
+        tab_mets = None
 
     # ── Flashcards ──────────────────────────────────────────────
     with tab_fc:
@@ -1189,17 +1464,24 @@ elif st.session_state.step == "study":
 
     # ── Card List ────────────────────────────────────────────────
     with tab_list:
-        st.markdown('<div class="sec-sub">All approved flashcards in list view.</div>', unsafe_allow_html=True)
+        gold_questions = {g["question"] for g in st.session_state.gold_cards_session}
+        gold_n = sum(1 for c in final_deck if c.question in gold_questions)
+        gold_suffix = f' · <span style="color:#f59e0b">\u2605 {gold_n} gold example{"s" if gold_n!=1 else ""}</span>' if gold_n else ""
+        st.markdown(f'<div class="sec-sub">All approved flashcards in list view.{gold_suffix}</div>', unsafe_allow_html=True)
         for i, card in enumerate(final_deck):
-            with st.expander(f"Card {i+1} — {card.question[:75]}{'…' if len(card.question)>75 else ''}"):
+            is_gold = card.question in gold_questions
+            gold_label = " ★" if is_gold else ""
+            with st.expander(f"Card {i+1}{gold_label} — {card.question[:72]}{'…' if len(card.question)>72 else ''}"):
+                gold_badge = '<span style="font-family:var(--font-m);font-size:0.62rem;color:#f59e0b;background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.25);border-radius:99px;padding:0.1rem 0.5rem;margin-right:0.4rem;">★ gold example</span>' if is_gold else ""
                 st.markdown(f"""
-                <div style="margin-bottom:0.5rem">{diff_chip(card.difficulty)}{chip(card.bloom_level,'bloom')}{chip(card.question_type,'type')}</div>
+                <div style="margin-bottom:0.5rem">{gold_badge}{diff_chip(card.difficulty)}{chip(card.bloom_level,'bloom')}{chip(card.question_type,'type')}</div>
                 <div style="font-weight:600;margin-bottom:0.4rem;line-height:1.5">Q: {card.question}</div>
                 <div style="color:var(--cyan);line-height:1.5">A: {card.answer}</div>
                 <div style="font-size:0.7rem;color:var(--text3);margin-top:0.4rem;font-family:var(--font-m)">source: {card.source_chunk_id}</div>""", unsafe_allow_html=True)
 
     # ── Quality Metrics ──────────────────────────────────────────
-    with tab_mets:
+    if tab_mets is not None:
+     with tab_mets:
         if not scored:
             st.info("No quality scores.")
         else:
