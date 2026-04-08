@@ -1,0 +1,174 @@
+{
+  "session_id": "cc31718c",
+  "role": "student",
+  "export_timestamp": "2026-04-08T14:32:16",
+  "source": "PDF-6.pdf",
+  "content_type": "theory",
+  "pipeline_metrics": {},
+  "gold_examples_total": 0,
+  "gold_this_session": [],
+  "quality_summary": {
+    "total_scored": 0,
+    "mean": 0.0,
+    "best": 0,
+    "worst": 0,
+    "high_count": 0,
+    "mid_count": 0,
+    "low_count": 1
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the fundamental characteristic of the target variable in a supervised classification task?",
+      "answer": "The target variable is discrete, representing distinct categories or classes (e.g., spam vs. non-spam).",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "question_type": "definition",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": 57.28,
+      "flip_count": 5
+    },
+    {
+      "index": 1,
+      "question": "How does a hyperplane function in the context of binary classification?",
+      "answer": "A hyperplane acts as a decision boundary that divides the input space into two half-spaces, each corresponding to one of the two distinct classes.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_1",
+      "composite_score": null,
+      "study_time_sec": 30.22,
+      "flip_count": 4
+    },
+    {
+      "index": 2,
+      "question": "Why is the logistic sigmoid function applied to the linear regression output in Logistic Regression?",
+      "answer": "It is used to map the continuous output of a linear model into the range (0, 1), allowing the output to be interpreted as a probability of class membership.",
+      "difficulty": "medium",
+      "bloom_level": "analyze",
+      "question_type": "application",
+      "source_chunk_id": "chunk_2",
+      "composite_score": null,
+      "study_time_sec": null,
+      "flip_count": 0
+    },
+    {
+      "index": 3,
+      "question": "Why is Binary Cross-Entropy (BCE) loss generally preferred over sum-of-squared errors for classification tasks?",
+      "answer": "BCE imposes a significantly larger penalty when there is a complete mismatch between the ground truth and the model's prediction, which is not achieved by squared error.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "question_type": "comparison",
+      "source_chunk_id": "chunk_2",
+      "composite_score": null,
+      "study_time_sec": null,
+      "flip_count": 0
+    },
+    {
+      "index": 4,
+      "question": "What happens to the Binary Cross-Entropy loss value when the model's prediction is close to 0 but the ground truth is 1?",
+      "answer": "The loss value becomes very large, reflecting a high penalty for a complete mismatch between the prediction and the ground truth.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "question_type": "application",
+      "source_chunk_id": "chunk_3",
+      "composite_score": null,
+      "study_time_sec": null,
+      "flip_count": 0
+    }
+  ],
+  "flip_timestamps": {
+    "0": [
+      1775673078.6637218,
+      1775673092.596968,
+      1775673105.9236364,
+      1775673117.523188,
+      1775673135.944081
+    ],
+    "1": [
+      1775673098.123618,
+      1775673103.2800987,
+      1775673123.4123685,
+      1775673128.3468893
+    ]
+  },
+  "sm2_state": {
+    "0": {
+      "card_index": 0,
+      "easiness_factor": 1.42,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": 1775673117.523188,
+      "last_reviewed": 1775673117.523188,
+      "review_count": 2,
+      "review_history": [
+        {
+          "timestamp": 1775673092.596968,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775673117.523188,
+          "quality": 1
+        }
+      ]
+    },
+    "1": {
+      "card_index": 1,
+      "easiness_factor": 1.96,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775759528.3468893,
+      "last_reviewed": 1775673128.3468893,
+      "review_count": 2,
+      "review_history": [
+        {
+          "timestamp": 1775673103.2800987,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775673128.3468893,
+          "quality": 4
+        }
+      ]
+    },
+    "2": {
+      "card_index": 2,
+      "easiness_factor": 2.5,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": null,
+      "last_reviewed": null,
+      "review_count": 0,
+      "review_history": []
+    },
+    "3": {
+      "card_index": 3,
+      "easiness_factor": 2.5,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": null,
+      "last_reviewed": null,
+      "review_count": 0,
+      "review_history": []
+    },
+    "4": {
+      "card_index": 4,
+      "easiness_factor": 2.5,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": null,
+      "last_reviewed": null,
+      "review_count": 0,
+      "review_history": []
+    }
+  },
+  "sm2_summary": {
+    "new": 0,
+    "due": 4,
+    "learning": 1,
+    "mastered": 0,
+    "total_reviews": 4
+  },
+  "review_decisions": {}
+}

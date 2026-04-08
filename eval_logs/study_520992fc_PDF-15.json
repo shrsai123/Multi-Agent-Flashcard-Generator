@@ -1,0 +1,236 @@
+{
+  "session_id": "520992fc",
+  "role": "student",
+  "export_timestamp": "2026-04-08T15:25:23",
+  "source": "PDF-15.pdf",
+  "content_type": "theory",
+  "pipeline_metrics": {},
+  "gold_examples_total": 0,
+  "gold_this_session": [],
+  "quality_summary": {
+    "total_scored": 0,
+    "mean": 0.0,
+    "best": 0,
+    "worst": 0,
+    "high_count": 0,
+    "mid_count": 0,
+    "low_count": 1
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the defining structural characteristic of a Feedforward Neural Network (Multi-layer perceptron)?",
+      "answer": "Neurons are organized in multiple layers where the output of one layer serves as the input to the subsequent layer.",
+      "difficulty": "medium",
+      "bloom_level": "remember",
+      "question_type": "definition",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": 36.18,
+      "flip_count": 4
+    },
+    {
+      "index": 1,
+      "question": "How does the objective function for regression differ from multiclass classification in neural networks?",
+      "answer": "Regression typically uses Mean Squared Error (MSE) to measure discrepancy, while multiclass classification uses Cross-Entropy (CE), where the sum of output probabilities equals one.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "question_type": "comparison",
+      "source_chunk_id": "chunk_1",
+      "composite_score": null,
+      "study_time_sec": 82.19,
+      "flip_count": 6
+    },
+    {
+      "index": 2,
+      "question": "What is the primary purpose of backpropagation in training a neural network?",
+      "answer": "Backpropagation is used to compute the derivative of the loss function with respect to the weights and biases across different layers, starting from the output layer and moving backward.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_2",
+      "composite_score": null,
+      "study_time_sec": 4.09,
+      "flip_count": 2
+    },
+    {
+      "index": 3,
+      "question": "Why is the activation function applied element-wise to the result of the weighted sum and bias?",
+      "answer": "It introduces non-linearity into the network, allowing it to learn complex feature representations rather than just performing linear transformations.",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "question_type": "application",
+      "source_chunk_id": "chunk_1",
+      "composite_score": null,
+      "study_time_sec": 23.89,
+      "flip_count": 8
+    },
+    {
+      "index": 4,
+      "question": "In the context of backpropagation, why are biases typically excluded from regularization?",
+      "answer": "Regularization is applied to weights to prevent overfitting by penalizing large values, but it is standard practice to not regularize bias terms.",
+      "difficulty": "medium",
+      "bloom_level": "remember",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_2",
+      "composite_score": null,
+      "study_time_sec": 16.16,
+      "flip_count": 6
+    }
+  ],
+  "flip_timestamps": {
+    "0": [
+      1775676200.1407852,
+      1775676210.2299612,
+      1775676232.9404829,
+      1775676236.3176744
+    ],
+    "1": [
+      1775676214.6878529,
+      1775676229.0677,
+      1775676241.1262388,
+      1775676284.3840423,
+      1775676293.7503664,
+      1775676296.8763394
+    ],
+    "2": [
+      1775676286.8453667,
+      1775676290.9375494
+    ],
+    "3": [
+      1775676299.1880744,
+      1775676300.8320525,
+      1775676308.1707087,
+      1775676309.4419398,
+      1775676314.0249517,
+      1775676315.2098606,
+      1775676320.7375255,
+      1775676323.0819235
+    ],
+    "4": [
+      1775676302.9595172,
+      1775676306.336538,
+      1775676311.1852882,
+      1775676312.3466148,
+      1775676316.741724,
+      1775676319.1182308
+    ]
+  },
+  "sm2_state": {
+    "0": {
+      "card_index": 0,
+      "easiness_factor": 1.96,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775762636.3176744,
+      "last_reviewed": 1775676236.3176744,
+      "review_count": 2,
+      "review_history": [
+        {
+          "timestamp": 1775676210.2299612,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676236.3176744,
+          "quality": 4
+        }
+      ]
+    },
+    "1": {
+      "card_index": 1,
+      "easiness_factor": 1.42,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775762696.8763394,
+      "last_reviewed": 1775676296.8763394,
+      "review_count": 3,
+      "review_history": [
+        {
+          "timestamp": 1775676229.0677,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676284.3840423,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676296.8763394,
+          "quality": 4
+        }
+      ]
+    },
+    "2": {
+      "card_index": 2,
+      "easiness_factor": 2.5,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775762690.9375494,
+      "last_reviewed": 1775676290.9375494,
+      "review_count": 1,
+      "review_history": [
+        {
+          "timestamp": 1775676290.9375494,
+          "quality": 4
+        }
+      ]
+    },
+    "3": {
+      "card_index": 3,
+      "easiness_factor": 1.4,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775762723.0819235,
+      "last_reviewed": 1775676323.0819235,
+      "review_count": 4,
+      "review_history": [
+        {
+          "timestamp": 1775676300.8320525,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676309.4419398,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676315.2098606,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676323.0819235,
+          "quality": 5
+        }
+      ]
+    },
+    "4": {
+      "card_index": 4,
+      "easiness_factor": 1.42,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775762719.1182308,
+      "last_reviewed": 1775676319.1182308,
+      "review_count": 3,
+      "review_history": [
+        {
+          "timestamp": 1775676306.336538,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676312.3466148,
+          "quality": 1
+        },
+        {
+          "timestamp": 1775676319.1182308,
+          "quality": 4
+        }
+      ]
+    }
+  },
+  "sm2_summary": {
+    "new": 0,
+    "due": 0,
+    "learning": 5,
+    "mastered": 0,
+    "total_reviews": 13
+  },
+  "review_decisions": {}
+}
