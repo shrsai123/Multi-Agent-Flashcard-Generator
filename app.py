@@ -215,6 +215,9 @@ def init_state():
         "sm2_current_idx": None,    # index of card currently being studied in SM2 mode
         "pipeline_metrics": {},     # logged after each pipeline run
         "study_session_id": None,   # unique ID per study session
+        # ── User survey ──
+        "survey_submitted": False,
+        "survey_responses": None,
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -393,6 +396,8 @@ def _build_eval_export(final_deck, scored_cards) -> dict:
         "sm2_summary": get_sm2_summary(st.session_state, len(final_deck)),
         # Teacher review decisions
         "review_decisions": {str(k): v for k, v in st.session_state.get("review_decisions", {}).items()},
+        # User survey responses
+        "user_survey": st.session_state.get("survey_responses", None),
     }
 
 
@@ -447,7 +452,8 @@ def reset():
             "rejected_cards", "content_type", "source_filename", "flip_states",
             "review_decisions", "edit_data", "auto_edit_data", "auto_edit_decisions",
             "gold_cards_session", "gold_count", "teacher_authed", "pw_error",
-            "flip_times", "sm2_cards", "sm2_current_idx", "pipeline_metrics", "study_session_id"]
+            "flip_times", "sm2_cards", "sm2_current_idx", "pipeline_metrics", "study_session_id",
+            "survey_submitted", "survey_responses"]
     for k in keys:
         if k in st.session_state:
             del st.session_state[k]
@@ -1067,9 +1073,9 @@ elif st.session_state.step == "study":
         </div>""", unsafe_allow_html=True)
 
     if st.session_state.role == "teacher":
-        tab_fc, tab_list, tab_mets, tab_exp = st.tabs(["🃏 Flashcards", "📋 Card List", f"📊 Quality Metrics ({len(scored)})", "💾 Export"])
+        tab_fc, tab_list, tab_mets, tab_survey, tab_exp = st.tabs(["🃏 Flashcards", "📋 Card List", f"📊 Quality Metrics ({len(scored)})", "📝 User Survey", "💾 Export"])
     else:
-        tab_fc, tab_list, tab_exp = st.tabs(["🃏 Study", "📋 All Cards", "💾 Export"])
+        tab_fc, tab_list, tab_survey, tab_exp = st.tabs(["🃏 Study", "📋 All Cards", "📝 User Survey", "💾 Export"])
         tab_mets = None
 
     # ── Flashcards (SM2 Spaced Repetition) ──
@@ -1319,6 +1325,73 @@ elif st.session_state.step == "study":
                   <div style="display:grid;grid-template-columns:1fr 1fr;gap:0 1.5rem">{sbar("Groundedness",sc.groundedness)}{sbar("Clarity",sc.clarity)}{sbar("Uniqueness",sc.uniqueness)}{sbar("Difficulty Cal.",sc.difficulty_calibration)}</div>
                   <div class="rcard-just">💬 {sc.justification}</div>
                 </div>""", unsafe_allow_html=True)
+
+    # ── User Survey ──
+    with tab_survey:
+        st.markdown('<div class="sec-sub">Help us understand your experience with CardCraft. Takes about 1 minute.</div>', unsafe_allow_html=True)
+
+        if st.session_state.get("survey_submitted"):
+            st.success("Survey submitted for this session. Thank you!")
+            if st.session_state.get("survey_responses"):
+                with st.expander("View your responses"):
+                    st.json(st.session_state.survey_responses)
+        else:
+            with st.form("user_survey_form"):
+                st.markdown("#### Rate your experience")
+
+                trust = st.slider(
+                    "Q1. How much do you TRUST the AI-generated flashcards?",
+                    min_value=1, max_value=5, value=3,
+                    help="1 = not at all, 5 = completely"
+                )
+                satisfaction = st.slider(
+                    "Q2. How SATISFIED are you with the overall card quality?",
+                    min_value=1, max_value=5, value=3,
+                    help="1 = very unsatisfied, 5 = very satisfied"
+                )
+                difficulty = st.radio(
+                    "Q3. Were the cards the right difficulty?",
+                    options=["Too easy", "Just right", "Too hard"],
+                    index=1,
+                    horizontal=True,
+                )
+                would_use = st.radio(
+                    "Q4. Would you use CardCraft again for studying?",
+                    options=["Yes", "No"],
+                    horizontal=True,
+                )
+                edit_helped = st.radio(
+                    "Q5. Did having EDIT CONTROL make you trust the cards more?",
+                    options=["Yes", "No", "I didn't edit any cards"],
+                    horizontal=True,
+                    help="Key question for our research hypothesis."
+                )
+                free_text = st.text_area(
+                    "Any other feedback? (optional)",
+                    placeholder="Tell us what worked well or could be improved..."
+                )
+
+                submitted = st.form_submit_button("Submit Survey", use_container_width=True)
+                if submitted:
+                    sid = st.session_state.get("study_session_id", "session")
+                    responses = {
+                        "session_id": sid,
+                        "role": st.session_state.get("role", "unknown"),
+                        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
+                        "trust_score": trust,
+                        "satisfaction_score": satisfaction,
+                        "perceived_difficulty": difficulty,
+                        "would_use_again": would_use,
+                        "edit_control_helped_trust": edit_helped,
+                        "free_text": free_text,
+                    }
+                    st.session_state.survey_responses = responses
+                    st.session_state.survey_submitted = True
+                    # Save to eval_logs
+                    survey_file = EVAL_LOG_DIR / f"survey_{sid}.json"
+                    with open(survey_file, "w", encoding="utf-8") as f:
+                        json.dump(responses, f, indent=2)
+                    st.rerun()
 
     # ── Export (with eval data) ──
     with tab_exp:
