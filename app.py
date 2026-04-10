@@ -12,7 +12,15 @@ from dotenv import load_dotenv
 load_dotenv()
 
 from providers.llm_provider import create_llm
+from core.models import FlashcardState, Flashcard
 from core.sm2 import SM2Card, RATING_BUTTONS, get_or_create_sm2, get_due_cards, get_sm2_summary
+from core.eval_metrics import (
+    compute_pipeline_metrics, compute_learning_metrics,
+    compute_correlations, build_comprehensive_eval_export,
+)
+from agents.content_extraction import extract_text_from_pdf, content_extraction_node
+from agents.flashcard_generation import flashcard_generation_node
+from agents.quality_check import quality_check_node
 
 st.set_page_config(
     page_title="CardCraft AI",
@@ -218,6 +226,12 @@ def init_state():
         # ── User survey ──
         "survey_submitted": False,
         "survey_responses": None,
+        # ── Pre/Post knowledge test ──
+        "test_indices": None,       # indices of cards used for pre/post test
+        "pre_test_done": False,
+        "post_test_done": False,
+        "pre_test_scores": {},      # {card_idx: 0|1|2}
+        "post_test_scores": {},     # {card_idx: 0|1|2}
     }
     for k, v in defaults.items():
         if k not in st.session_state:
@@ -237,6 +251,49 @@ def get_vector_store():
     return vs
 
 
+# ── LangGraph Pipeline (built from scratch) ────────────────────
+
+def build_pipeline_graph(vs, llm, qllm, num_cards: int):
+    """
+    Build and compile a LangGraph StateGraph for the flashcard pipeline.
+    3 nodes: content_extraction → flashcard_generation → quality_check → END
+    Teacher review is handled by Streamlit UI after the graph completes.
+    """
+    from langgraph.graph import StateGraph, END
+
+    # ── Node wrappers with injected dependencies ──
+    def extraction_node(state: FlashcardState) -> dict:
+        return content_extraction_node(state, vs, llm)
+
+    def generation_node(state: FlashcardState) -> dict:
+        return flashcard_generation_node(state, vs, llm, cards_per_batch=num_cards)
+
+    def quality_node(state: FlashcardState) -> dict:
+        return quality_check_node(state, qllm)
+
+    # ── Build graph ──
+    graph = StateGraph(FlashcardState)
+    graph.add_node("content_extraction", extraction_node)
+    graph.add_node("flashcard_generation", generation_node)
+    graph.add_node("quality_check", quality_node)
+
+    # ── Edges: linear pipeline ──
+    graph.set_entry_point("content_extraction")
+    graph.add_edge("content_extraction", "flashcard_generation")
+    graph.add_edge("flashcard_generation", "quality_check")
+    graph.add_edge("quality_check", END)
+
+    return graph.compile()
+
+
+def store_teacher_edits(vs, teacher_edits: list):
+    """Store teacher-edited cards as gold examples for future few-shot retrieval."""
+    for card in teacher_edits:
+        vs.add_gold_flashcard({
+            "question": card.question, "answer": card.answer,
+            "difficulty": card.difficulty, "bloom_level": card.bloom_level,
+            "question_type": card.question_type,
+        })
 
 
 # ── File-based deck publishing ──────────────────────────────────
@@ -277,128 +334,16 @@ def _load_published_deck() -> Optional[Dict[str, Any]]:
         return None
 
 
-# ── Evaluation metrics ──────────────────────────────────────────
+# ── Evaluation metrics (delegated to core.eval_metrics) ──────────
 
 def _log_pipeline_metrics(scored_cards, approved, human_queue, rejected,
                           raw_cards, gold_at_gen_time, duration_s):
-    """Compute and persist system-level evaluation metrics after each pipeline run."""
-    scores = [s.composite_score for s in scored_cards]
-    total = len(scored_cards) or 1
-    mean_score = sum(scores) / total if scores else 0
-
-    metrics = {
-        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "session_id": st.session_state.get("study_session_id", ""),
-        "source_file": st.session_state.source_filename,
-        "content_type": st.session_state.content_type,
-        "provider": st.session_state.gen_provider,
-        "model": st.session_state.gen_model,
-        "pipeline_duration_sec": round(duration_s, 1),
-        # Generation
-        "cards_requested": st.session_state.gen_num_cards,
-        "cards_parsed_valid": len(raw_cards),
-        "generation_success_rate": round(len(raw_cards) / max(st.session_state.gen_num_cards, 1), 3),
-        # Quality distribution
-        "composite_mean": round(mean_score, 4),
-        "composite_min": round(min(scores), 4) if scores else 0,
-        "composite_max": round(max(scores), 4) if scores else 0,
-        "composite_std": round((sum((s - mean_score)**2 for s in scores) / total) ** 0.5, 4) if scores else 0,
-        # Per-dimension means
-        "groundedness_mean": round(sum(s.groundedness for s in scored_cards) / total, 4),
-        "clarity_mean": round(sum(s.clarity for s in scored_cards) / total, 4),
-        "uniqueness_mean": round(sum(s.uniqueness for s in scored_cards) / total, 4),
-        "difficulty_cal_mean": round(sum(s.difficulty_calibration for s in scored_cards) / total, 4),
-        # Routing rates
-        "auto_approve_count": len(approved),
-        "human_review_count": len(human_queue),
-        "auto_reject_count": len(rejected),
-        "auto_approve_rate": round(len(approved) / total, 3),
-        "human_review_rate": round(len(human_queue) / total, 3),
-        "auto_reject_rate": round(len(rejected) / total, 3),
-        # Gold utilization
-        "gold_examples_at_generation": gold_at_gen_time,
-    }
+    """Thin wrapper — delegates to core.eval_metrics and stores in session."""
+    metrics = compute_pipeline_metrics(
+        scored_cards, approved, human_queue, rejected,
+        raw_cards, gold_at_gen_time, duration_s, dict(st.session_state))
     st.session_state.pipeline_metrics = metrics
-
-    # Append to persistent log file (one JSON object per line)
-    log_file = EVAL_LOG_DIR / "pipeline_metrics.jsonl"
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(json.dumps(metrics, ensure_ascii=False) + "\n")
     return metrics
-
-
-def _build_eval_export(final_deck, scored_cards) -> dict:
-    """Build comprehensive evaluation data for export (covers both pipeline + study)."""
-    scores = [s.composite_score for s in scored_cards] if scored_cards else [0]
-    flip_times = st.session_state.get("flip_times", {})
-
-    # Compute per-card study time from flip timestamps
-    card_study_times = {}
-    for idx_key, timestamps in flip_times.items():
-        idx = int(idx_key) if isinstance(idx_key, str) else idx_key
-        if len(timestamps) >= 2:
-            card_study_times[idx] = round(timestamps[-1] - timestamps[0], 2)
-        elif len(timestamps) == 1:
-            card_study_times[idx] = 0.0
-
-    return {
-        "session_id": st.session_state.get("study_session_id", "no_id"),
-        "role": st.session_state.get("role", "unknown"),
-        "export_timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
-        "source": st.session_state.source_filename,
-        "content_type": st.session_state.content_type,
-        # Pipeline metrics snapshot
-        "pipeline_metrics": st.session_state.get("pipeline_metrics", {}),
-        # Gold
-        "gold_examples_total": st.session_state.gold_count,
-        "gold_this_session": st.session_state.get("gold_cards_session", []),
-        # Quality summary
-        "quality_summary": {
-            "total_scored": len(scored_cards),
-            "mean": round(sum(scores) / len(scores), 4),
-            "best": round(max(scores), 4),
-            "worst": round(min(scores), 4),
-            "high_count": sum(1 for s in scores if s >= 0.8),
-            "mid_count": sum(1 for s in scores if 0.5 <= s < 0.8),
-            "low_count": sum(1 for s in scores if s < 0.5),
-        },
-        # Per-card detail with study interaction data
-        "flashcards": [
-            {
-                "index": i,
-                "question": c.question, "answer": c.answer,
-                "difficulty": c.difficulty, "bloom_level": c.bloom_level,
-                "question_type": c.question_type, "source_chunk_id": c.source_chunk_id,
-                # Quality scores
-                **(lambda sc: {
-                    "composite_score": round(sc.composite_score, 4),
-                    "groundedness": round(sc.groundedness, 4),
-                    "clarity": round(sc.clarity, 4),
-                    "uniqueness": round(sc.uniqueness, 4),
-                    "difficulty_calibration": round(sc.difficulty_calibration, 4),
-                    "routing_decision": sc.routing_decision,
-                } if sc else {"composite_score": None})(
-                    next((s for s in scored_cards if s.card.question == c.question), None)
-                ),
-                # Study interaction
-                "study_time_sec": card_study_times.get(i),
-                "flip_count": len(flip_times.get(i, flip_times.get(str(i), []))),
-            }
-            for i, c in enumerate(final_deck)
-        ],
-        # Raw flip timestamps
-        "flip_timestamps": {str(k): v for k, v in flip_times.items()},
-        # SM2 spaced repetition data
-        "sm2_state": {
-            str(k): v.to_dict()
-            for k, v in st.session_state.get("sm2_cards", {}).items()
-        },
-        "sm2_summary": get_sm2_summary(st.session_state, len(final_deck)),
-        # Teacher review decisions
-        "review_decisions": {str(k): v for k, v in st.session_state.get("review_decisions", {}).items()},
-        # User survey responses
-        "user_survey": st.session_state.get("survey_responses", None),
-    }
 
 
 # ── UI helpers ──────────────────────────────────────────────────
@@ -453,7 +398,8 @@ def reset():
             "review_decisions", "edit_data", "auto_edit_data", "auto_edit_decisions",
             "gold_cards_session", "gold_count", "teacher_authed", "pw_error",
             "flip_times", "sm2_cards", "sm2_current_idx", "pipeline_metrics", "study_session_id",
-            "survey_submitted", "survey_responses"]
+            "survey_submitted", "survey_responses",
+            "test_indices", "pre_test_done", "post_test_done", "pre_test_scores", "post_test_scores"]
     for k in keys:
         if k in st.session_state:
             del st.session_state[k]
@@ -579,6 +525,11 @@ elif st.session_state.role == "student":
         st.session_state.published_gold = pub.get("gold_examples", [])
         st.session_state.source_filename = pub.get("metadata", {}).get("source_filename", "")
         st.session_state.content_type = pub.get("metadata", {}).get("content_type", "")
+        # Carry over teacher's pipeline metrics + quality scores
+        st.session_state.pipeline_metrics = pub.get("metadata", {}).get("pipeline_metrics", {})
+        st.session_state.published_quality = {
+            qs["question"]: qs for qs in pub.get("quality_scores", [])
+        }
 
     if not st.session_state.published_deck:
         st.markdown("""
@@ -715,48 +666,81 @@ elif st.session_state.role == "teacher" and st.session_state.step == "generating
         vs = get_vector_store()
         gold_at_gen_time = vs.get_gold_count()
 
+        # ── Step 0: Extract text (before graph — needs early validation) ──
         upd(0, "active"); prog.progress(8)
-        from agents.content_extraction import extract_text_from_pdf, content_extraction_node
         pdf_text = extract_text_from_pdf(st.session_state._tmp_pdf)
-        if not pdf_text.strip(): st.error("❌ No text extracted"); st.stop()
-        upd(0, "done", f"Extracted {len(pdf_text):,} characters"); prog.progress(22)
+        if not pdf_text.strip():
+            st.error("❌ No text extracted"); st.stop()
+        upd(0, "done", f"Extracted {len(pdf_text):,} characters"); prog.progress(15)
 
-        upd(1, "active"); prog.progress(27)
+        # ── Build & compile the LangGraph pipeline ──
         llm = create_llm(provider=provider, model=model, temperature=0.7, api_key=api_key)
-        state = {"pdf_content": pdf_text, "source_filename": st.session_state.source_filename}
-        res = content_extraction_node(state, vs, llm); state.update(res)
-        ctype = state.get("content_type", "theory"); chunks = state.get("chunks", [])
-        if not chunks: st.error("❌ No chunks produced."); st.stop()
-        st.session_state.content_type = ctype; st.session_state.chunks = chunks
-        upd(1, "done", f"Type: {ctype} · {len(chunks)} chunks"); prog.progress(46)
-
-        upd(2, "active"); prog.progress(50)
-        from agents.flashcard_generation import flashcard_generation_node
-        gen_res = flashcard_generation_node(state, vs, llm, cards_per_batch=num_cards); state.update(gen_res)
-        raw_cards = state.get("raw_cards", [])
-        if not raw_cards: st.error(f"❌ Generation failed: {state.get('error','')}"); st.stop()
-        st.session_state.raw_cards = raw_cards
-        upd(2, "done", f"Generated {len(raw_cards)} flashcards"); prog.progress(72)
-
-        upd(3, "active"); prog.progress(77)
-        from agents.quality_check import quality_check_node
         qllm = create_llm(provider=provider, model=model, temperature=0.2, api_key=api_key)
-        qres = quality_check_node(state, qllm); state.update(qres)
-        st.session_state.scored_cards = state.get("scored_cards", [])
-        st.session_state.approved_cards = list(state.get("approved_cards", []))
-        st.session_state.human_queue = state.get("human_queue", [])
-        st.session_state.rejected_cards = state.get("rejected_cards", [])
-        st.session_state.gold_count = vs.get_gold_count()
-        na = len(st.session_state.approved_cards)
-        nh = len(st.session_state.human_queue)
-        nr = len(st.session_state.rejected_cards)
-        upd(3, "done", f"{na} auto-approved · {nh} need review · {nr} rejected"); prog.progress(100)
+        compiled_graph = build_pipeline_graph(vs, llm, qllm, num_cards)
+
+        # ── Stream the graph — update UI as each node completes ──
+        initial_state: FlashcardState = {
+            "pdf_content": pdf_text,
+            "source_filename": st.session_state.source_filename,
+        }
+
+        NODE_UI = {
+            "content_extraction": {"idx": 1, "progress": 46},
+            "flashcard_generation": {"idx": 2, "progress": 72},
+            "quality_check": {"idx": 3, "progress": 100},
+        }
+
+        final_state = dict(initial_state)
+
+        upd(1, "active"); prog.progress(20)
+
+        for event in compiled_graph.stream(initial_state):
+            for node_name, node_output in event.items():
+                final_state.update(node_output)
+                ui = NODE_UI.get(node_name)
+                if not ui:
+                    continue
+
+                idx = ui["idx"]
+
+                # Update UI with node-specific details
+                if node_name == "content_extraction":
+                    ctype = node_output.get("content_type", "theory")
+                    chunks = node_output.get("chunks", [])
+                    st.session_state.content_type = ctype
+                    st.session_state.chunks = chunks
+                    if not chunks:
+                        st.error("❌ No chunks produced."); st.stop()
+                    upd(idx, "done", f"Type: {ctype} · {len(chunks)} chunks")
+                    upd(idx + 1, "active")
+
+                elif node_name == "flashcard_generation":
+                    raw_cards = node_output.get("raw_cards", [])
+                    if not raw_cards:
+                        st.error(f"❌ Generation failed: {node_output.get('error', '')}"); st.stop()
+                    st.session_state.raw_cards = raw_cards
+                    upd(idx, "done", f"Generated {len(raw_cards)} flashcards")
+                    upd(idx + 1, "active")
+
+                elif node_name == "quality_check":
+                    st.session_state.scored_cards = node_output.get("scored_cards", [])
+                    st.session_state.approved_cards = list(node_output.get("approved_cards", []))
+                    st.session_state.human_queue = node_output.get("human_queue", [])
+                    st.session_state.rejected_cards = node_output.get("rejected_cards", [])
+                    st.session_state.gold_count = vs.get_gold_count()
+                    na = len(st.session_state.approved_cards)
+                    nh = len(st.session_state.human_queue)
+                    nr = len(st.session_state.rejected_cards)
+                    upd(idx, "done", f"{na} auto-approved · {nh} need review · {nr} rejected")
+
+                prog.progress(ui["progress"])
 
         # ── Log evaluation metrics ──
         pipeline_duration = time.time() - pipeline_start
-        _log_pipeline_metrics(st.session_state.scored_cards, st.session_state.approved_cards,
-                              st.session_state.human_queue, st.session_state.rejected_cards,
-                              raw_cards, gold_at_gen_time, pipeline_duration)
+        _log_pipeline_metrics(
+            st.session_state.scored_cards, st.session_state.approved_cards,
+            st.session_state.human_queue, st.session_state.rejected_cards,
+            st.session_state.raw_cards, gold_at_gen_time, pipeline_duration)
 
         try: os.unlink(st.session_state._tmp_pdf)
         except: pass
@@ -909,13 +893,10 @@ elif st.session_state.role == "teacher" and st.session_state.step == "review":
                                     difficulty=card.difficulty, bloom_level=card.bloom_level,
                                     source_chunk_id=card.source_chunk_id, question_type=card.question_type)
                         final_approved.append(edited); teacher_edits.append(edited)
-                # Store gold examples
+                # Store teacher edits as gold examples for future few-shot retrieval
                 if teacher_edits:
                     vs = get_vector_store()
-                    for ed in teacher_edits:
-                        vs.add_gold_flashcard({"question": ed.question, "answer": ed.answer,
-                                               "difficulty": ed.difficulty, "bloom_level": ed.bloom_level,
-                                               "question_type": ed.question_type})
+                    store_teacher_edits(vs, teacher_edits)
                     st.session_state.gold_count = vs.get_gold_count()
                 gold_session = [{"question": e.question, "answer": e.answer, "difficulty": e.difficulty,
                                  "bloom_level": e.bloom_level, "question_type": e.question_type}
@@ -1080,8 +1061,44 @@ elif st.session_state.step == "study":
 
     # ── Flashcards (SM2 Spaced Repetition) ──
     with tab_fc:
-        # Filters — teachers only. Students study the full deck.
         is_teacher = st.session_state.role == "teacher"
+
+        # ── Pre-test gate (students only, before first study) ──
+        if not is_teacher and not st.session_state.get("pre_test_done"):
+            import random
+            # Pick test cards (once per session)
+            if st.session_state.get("test_indices") is None:
+                n_test = min(5, len(final_deck))
+                st.session_state.test_indices = sorted(random.sample(range(len(final_deck)), n_test))
+
+            test_idx = st.session_state.test_indices
+
+            st.markdown(f"""
+            <div style="text-align:center;padding:1rem 0 0.5rem;">
+              <div style="font-family:var(--font-d);font-size:1.15rem;font-weight:700;margin-bottom:0.3rem;">Quick Knowledge Check</div>
+              <div style="font-size:0.82rem;color:var(--text3);max-width:420px;margin:0 auto 1.25rem;">
+                Before studying, rate how well you know each topic. This helps us measure learning. {len(test_idx)} questions, takes 30 seconds.
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            with st.form("pre_test_form"):
+                pre_scores = {}
+                for qi, ci in enumerate(test_idx):
+                    card = final_deck[ci]
+                    st.markdown(f'<div style="font-size:0.88rem;font-weight:600;margin:0.8rem 0 0.3rem;">Q{qi+1}. {card.question}</div>', unsafe_allow_html=True)
+                    pre_scores[ci] = st.radio(
+                        f"q{qi}", ["I know this well", "I have some idea", "No idea"],
+                        horizontal=True, key=f"pre_{ci}", label_visibility="collapsed",
+                    )
+
+                if st.form_submit_button("Start Studying →", use_container_width=True):
+                    score_map = {"I know this well": 2, "I have some idea": 1, "No idea": 0}
+                    st.session_state.pre_test_scores = {ci: score_map[v] for ci, v in pre_scores.items()}
+                    st.session_state.pre_test_done = True
+                    st.rerun()
+            st.stop()
+
+        # Filters — teachers only. Students study the full deck.
         if is_teacher:
             fc1, fc2, fc3 = st.columns(3)
             with fc1: filter_diff = st.multiselect("Difficulty", ["easy","medium","hard"], default=["easy","medium","hard"])
@@ -1112,14 +1129,15 @@ elif st.session_state.step == "study":
             else:
                 # Students get a minimal one-line summary, no toggle (always SM2)
                 studied_n = sm2_stats['learning'] + sm2_stats['mastered']
+                remaining_n = len(final_deck) - studied_n
                 st.markdown(f"""
                 <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.75rem;
                   padding:0.5rem 0.85rem;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-sm);">
                   <span style="font-family:var(--font-m);font-size:0.72rem;color:var(--text2);">
-                    {len(final_deck)} cards · {len(due_indices)} due · {studied_n} studied
+                    {remaining_n} remaining · {studied_n} complete
                   </span>
                   <span style="font-family:var(--font-m);font-size:0.72rem;color:var(--text3);">
-                    ↻ {sm2_stats['total_reviews']} reviews
+                    {len(final_deck)} cards total
                   </span>
                 </div>""", unsafe_allow_html=True)
                 study_mode = "📚 SM2 Study"  # students always get SM2
@@ -1127,11 +1145,12 @@ elif st.session_state.step == "study":
             if study_mode == "📚 SM2 Study":
                 # ── SM2 single-card study mode ──
                 if not due_indices:
-                    st.markdown("""
+                    done_msg = "No cards are due right now. Switch to Grid View to browse, or come back later." if is_teacher else "You've been through all the cards. Great work!"
+                    st.markdown(f"""
                     <div style="text-align:center;padding:3rem 1rem;">
                       <div style="font-size:2.5rem;margin-bottom:0.75rem;">🎉</div>
-                      <div style="font-family:var(--font-d);font-size:1.2rem;font-weight:700;margin-bottom:0.4rem;">All caught up!</div>
-                      <div style="color:var(--text3);font-size:0.85rem;">No cards are due right now. Switch to Grid View to browse, or come back later.</div>
+                      <div style="font-family:var(--font-d);font-size:1.2rem;font-weight:700;margin-bottom:0.4rem;">{"All caught up!" if is_teacher else "Session complete!"}</div>
+                      <div style="color:var(--text3);font-size:0.85rem;">{done_msg}</div>
                     </div>""", unsafe_allow_html=True)
                 else:
                     # Pick current card
@@ -1155,10 +1174,10 @@ elif st.session_state.step == "study":
                     <div class="sm2-progress">
                       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.4rem;">
                         <span style="font-family:var(--font-m);font-size:0.72rem;color:var(--text2);">
-                          Card {due_indices.index(cur_idx) + 1} of {len(due_indices)} due
+                          {"Card " + str(due_indices.index(cur_idx) + 1) + " of " + str(len(due_indices)) + " due" if is_teacher else "Card " + str(reviewed_n + 1) + " of " + str(len(filtered))}
                         </span>
                         <span style="font-family:var(--font-m);font-size:0.72rem;color:var(--text3);">
-                          {reviewed_n}/{len(filtered)} studied · {pct}%
+                          {reviewed_n}/{len(filtered)} {"studied" if is_teacher else "complete"} · {pct}%
                         </span>
                       </div>
                       <div style="background:var(--surface3);border-radius:99px;height:5px;overflow:hidden;">
@@ -1326,50 +1345,128 @@ elif st.session_state.step == "study":
                   <div class="rcard-just">💬 {sc.justification}</div>
                 </div>""", unsafe_allow_html=True)
 
-    # ── User Survey ──
+    # ── User Survey (with post-test) ──
     with tab_survey:
-        st.markdown('<div class="sec-sub">Help us understand your experience with CardCraft. Takes about 1 minute.</div>', unsafe_allow_html=True)
+        # ── Post-test (students only, same questions as pre-test) ──
+        if not is_teacher and st.session_state.get("pre_test_done") and not st.session_state.get("post_test_done"):
+            test_idx = st.session_state.get("test_indices", [])
+            if test_idx:
+                st.markdown(f"""
+                <div style="text-align:center;padding:1rem 0 0.5rem;">
+                  <div style="font-family:var(--font-d);font-size:1.15rem;font-weight:700;margin-bottom:0.3rem;">Post-Study Knowledge Check</div>
+                  <div style="font-size:0.82rem;color:var(--text3);max-width:420px;margin:0 auto 1.25rem;">
+                    Same {len(test_idx)} questions from before. Let's see what you learned!
+                  </div>
+                </div>""", unsafe_allow_html=True)
+
+                with st.form("post_test_form"):
+                    post_scores = {}
+                    for qi, ci in enumerate(test_idx):
+                        card = final_deck[ci]
+                        st.markdown(f'<div style="font-size:0.88rem;font-weight:600;margin:0.8rem 0 0.3rem;">Q{qi+1}. {card.question}</div>', unsafe_allow_html=True)
+                        post_scores[ci] = st.radio(
+                            f"pq{qi}", ["I know this well", "I have some idea", "No idea"],
+                            horizontal=True, key=f"post_{ci}", label_visibility="collapsed",
+                        )
+
+                    if st.form_submit_button("Submit & Continue to Survey →", use_container_width=True):
+                        score_map = {"I know this well": 2, "I have some idea": 1, "No idea": 0}
+                        st.session_state.post_test_scores = {ci: score_map[v] for ci, v in post_scores.items()}
+                        st.session_state.post_test_done = True
+                        st.rerun()
+                st.stop()
+
+        # ── Show pre/post results if both done ──
+        if not is_teacher and st.session_state.get("post_test_done"):
+            pre = st.session_state.get("pre_test_scores", {})
+            post = st.session_state.get("post_test_scores", {})
+            test_idx = st.session_state.get("test_indices", [])
+            pre_total = sum(pre.values())
+            post_total = sum(post.values())
+            max_score = len(test_idx) * 2
+            gain = post_total - pre_total
+
+            gain_color = "#10b981" if gain > 0 else ("#f59e0b" if gain == 0 else "#f43f5e")
+            st.markdown(f"""
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:1.2rem 1.4rem;margin-bottom:1.25rem;">
+              <div style="font-family:var(--font-d);font-size:0.95rem;font-weight:700;margin-bottom:0.6rem;">📊 Your Learning Progress</div>
+              <div style="display:flex;gap:1.5rem;align-items:center;">
+                <div style="text-align:center;">
+                  <div style="font-family:var(--font-m);font-size:1.4rem;font-weight:700;color:var(--text3);">{pre_total}/{max_score}</div>
+                  <div style="font-family:var(--font-m);font-size:0.62rem;color:var(--text3);text-transform:uppercase;">Before</div>
+                </div>
+                <div style="font-size:1.2rem;color:var(--text3);">→</div>
+                <div style="text-align:center;">
+                  <div style="font-family:var(--font-m);font-size:1.4rem;font-weight:700;color:var(--violet2);">{post_total}/{max_score}</div>
+                  <div style="font-family:var(--font-m);font-size:0.62rem;color:var(--text3);text-transform:uppercase;">After</div>
+                </div>
+                <div style="font-size:1.2rem;color:var(--text3);">= </div>
+                <div style="text-align:center;">
+                  <div style="font-family:var(--font-m);font-size:1.4rem;font-weight:700;color:{gain_color};">{"+" if gain > 0 else ""}{gain}</div>
+                  <div style="font-family:var(--font-m);font-size:0.62rem;color:var(--text3);text-transform:uppercase;">Gain</div>
+                </div>
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+        st.markdown("<hr>", unsafe_allow_html=True)
+
+        # ── Survey form (role-conditional) ──
+        st.markdown('<div class="sec-sub">Help us understand your experience. Takes about 1 minute.</div>', unsafe_allow_html=True)
 
         if st.session_state.get("survey_submitted"):
-            st.success("Survey submitted for this session. Thank you!")
+            st.success("Survey submitted. Thank you!")
             if st.session_state.get("survey_responses"):
                 with st.expander("View your responses"):
                     st.json(st.session_state.survey_responses)
         else:
             with st.form("user_survey_form"):
-                st.markdown("#### Rate your experience")
-
                 trust = st.slider(
-                    "Q1. How much do you TRUST the AI-generated flashcards?",
-                    min_value=1, max_value=5, value=3,
-                    help="1 = not at all, 5 = completely"
+                    "How much do you TRUST the AI-generated flashcards?",
+                    min_value=1, max_value=7, value=4,
+                    help="1 = not at all, 7 = completely"
                 )
                 satisfaction = st.slider(
-                    "Q2. How SATISFIED are you with the overall card quality?",
-                    min_value=1, max_value=5, value=3,
-                    help="1 = very unsatisfied, 5 = very satisfied"
+                    "How SATISFIED are you with the overall card quality?",
+                    min_value=1, max_value=7, value=4,
+                    help="1 = very unsatisfied, 7 = very satisfied"
+                )
+                learning = st.slider(
+                    "These cards helped me understand the material.",
+                    min_value=1, max_value=7, value=4,
+                    help="1 = strongly disagree, 7 = strongly agree"
                 )
                 difficulty = st.radio(
-                    "Q3. Were the cards the right difficulty?",
+                    "Were the cards the right difficulty?",
                     options=["Too easy", "Just right", "Too hard"],
-                    index=1,
-                    horizontal=True,
+                    index=1, horizontal=True,
                 )
-                would_use = st.radio(
-                    "Q4. Would you use CardCraft again for studying?",
-                    options=["Yes", "No"],
-                    horizontal=True,
-                )
-                edit_helped = st.radio(
-                    "Q5. Did having EDIT CONTROL make you trust the cards more?",
-                    options=["Yes", "No", "I didn't edit any cards"],
-                    horizontal=True,
-                    help="Key question for our research hypothesis."
-                )
-                free_text = st.text_area(
-                    "Any other feedback? (optional)",
-                    placeholder="Tell us what worked well or could be improved..."
-                )
+
+                # Role-conditional questions
+                if is_teacher:
+                    scores_helped = st.slider(
+                        "Quality scores helped me identify cards to edit.",
+                        min_value=1, max_value=7, value=4,
+                        help="1 = strongly disagree, 7 = strongly agree"
+                    )
+                    edits_improved = st.slider(
+                        "My edits improved the final deck quality.",
+                        min_value=1, max_value=7, value=4,
+                        help="1 = strongly disagree, 7 = strongly agree"
+                    )
+                else:
+                    confidence = st.slider(
+                        "I felt confident studying from these cards.",
+                        min_value=1, max_value=7, value=4,
+                        help="1 = strongly disagree, 7 = strongly agree"
+                    )
+                    prefer_ai = st.slider(
+                        "I would prefer these over making my own flashcards.",
+                        min_value=1, max_value=7, value=4,
+                        help="1 = strongly disagree, 7 = strongly agree"
+                    )
+
+                would_use = st.radio("Would you use CardCraft again?", options=["Yes", "No"], horizontal=True)
+                free_text = st.text_area("Any other feedback? (optional)", placeholder="What worked well or could be improved...")
 
                 submitted = st.form_submit_button("Submit Survey", use_container_width=True)
                 if submitted:
@@ -1378,73 +1475,119 @@ elif st.session_state.step == "study":
                         "session_id": sid,
                         "role": st.session_state.get("role", "unknown"),
                         "timestamp": time.strftime("%Y-%m-%dT%H:%M:%S"),
-                        "trust_score": trust,
-                        "satisfaction_score": satisfaction,
+                        "trust": trust,
+                        "satisfaction": satisfaction,
+                        "learning_value": learning,
                         "perceived_difficulty": difficulty,
                         "would_use_again": would_use,
-                        "edit_control_helped_trust": edit_helped,
                         "free_text": free_text,
                     }
+                    if is_teacher:
+                        responses["scores_helped_editing"] = scores_helped
+                        responses["edits_improved_quality"] = edits_improved
+                    else:
+                        responses["study_confidence"] = confidence
+                        responses["prefer_over_manual"] = prefer_ai
+                        # Include pre/post test results
+                        if st.session_state.get("post_test_done"):
+                            pre = st.session_state.get("pre_test_scores", {})
+                            post = st.session_state.get("post_test_scores", {})
+                            responses["pre_test_total"] = sum(pre.values())
+                            responses["post_test_total"] = sum(post.values())
+                            responses["learning_gain"] = sum(post.values()) - sum(pre.values())
+
                     st.session_state.survey_responses = responses
                     st.session_state.survey_submitted = True
-                    # Save to eval_logs
                     survey_file = EVAL_LOG_DIR / f"survey_{sid}.json"
                     with open(survey_file, "w", encoding="utf-8") as f:
                         json.dump(responses, f, indent=2)
                     st.rerun()
 
-    # ── Export (with eval data) ──
+    # ── Export ──
     with tab_exp:
-        st.markdown('<div class="sec-sub">Download your flashcard deck and evaluation data.</div>', unsafe_allow_html=True)
-
-        # Basic deck export
-        export_data = {
-            "source": st.session_state.source_filename, "content_type": st.session_state.content_type,
-            "total_cards": len(final_deck), "gold_examples_stored": st.session_state.gold_count,
-            "quality_summary": {"mean": round(avg_s, 3), "best": round(max(scores_list), 3), "worst": round(min(scores_list), 3)},
-            "flashcards": [{"question": c.question, "answer": c.answer, "difficulty": c.difficulty,
-                            "bloom_level": c.bloom_level, "question_type": c.question_type,
-                            "source_chunk_id": c.source_chunk_id} for c in final_deck],
-        }
-        json_str = json.dumps(export_data, indent=2, ensure_ascii=False)
-        tsv_lines = ["Question\tAnswer\tDifficulty\tBloom Level\tType"] + \
-                    [f"{c.question}\t{c.answer}\t{c.difficulty}\t{c.bloom_level}\t{c.question_type}" for c in final_deck]
         stem = Path(st.session_state.source_filename).stem if st.session_state.source_filename else "deck"
+        tsv_lines = ["Question\tAnswer"] + [f"{c.question}\t{c.answer}" for c in final_deck]
 
-        dc1, dc2 = st.columns(2)
-        with dc1:
-            st.download_button("⬇️ Download JSON", data=json_str,
-                               file_name=f"{stem}_flashcards.json", mime="application/json", use_container_width=True)
-        with dc2:
-            st.download_button("⬇️ Download TSV (Anki)", data="\n".join(tsv_lines),
-                               file_name=f"{stem}_flashcards.tsv", mime="text/tab-separated-values", use_container_width=True)
+        if is_teacher:
+            # ── Teacher: full research export ──
+            st.markdown('<div class="sec-sub">Export your deck and evaluation data for analysis.</div>', unsafe_allow_html=True)
 
-        # ── Evaluation data export ──
-        st.markdown("<hr>", unsafe_allow_html=True)
-        st.markdown('<div style="font-size:0.87rem;font-weight:600;margin-bottom:0.4rem;">📊 Evaluation Data Export</div>', unsafe_allow_html=True)
-        st.markdown('<div style="font-size:0.76rem;color:var(--text3);margin-bottom:0.75rem;">Includes pipeline metrics, per-card quality scores, flip timestamps, and study interaction data for your user study.</div>', unsafe_allow_html=True)
+            export_data = {
+                "source": st.session_state.source_filename, "content_type": st.session_state.content_type,
+                "total_cards": len(final_deck), "gold_examples_stored": st.session_state.gold_count,
+                "quality_summary": {"mean": round(avg_s, 3), "best": round(max(scores_list), 3), "worst": round(min(scores_list), 3)},
+                "flashcards": [{"question": c.question, "answer": c.answer, "difficulty": c.difficulty,
+                                "bloom_level": c.bloom_level, "question_type": c.question_type,
+                                "source_chunk_id": c.source_chunk_id} for c in final_deck],
+            }
+            json_str = json.dumps(export_data, indent=2, ensure_ascii=False)
 
-        eval_data = _build_eval_export(final_deck, scored)
-        eval_json = json.dumps(eval_data, indent=2, ensure_ascii=False)
-        sid = st.session_state.get("study_session_id", "session")
+            dc1, dc2 = st.columns(2)
+            with dc1:
+                st.download_button("⬇️ Download Deck (JSON)", data=json_str,
+                                   file_name=f"{stem}_flashcards.json", mime="application/json", use_container_width=True)
+            with dc2:
+                st.download_button("⬇️ Download Deck (Anki TSV)", data="\n".join(tsv_lines),
+                                   file_name=f"{stem}_flashcards.tsv", mime="text/tab-separated-values", use_container_width=True)
 
-        st.download_button(
-            "⬇️ Download Eval Data (JSON)",
-            data=eval_json,
-            file_name=f"{stem}_eval_{sid}.json",
-            mime="application/json",
-            use_container_width=True,
-        )
+            st.markdown("<hr>", unsafe_allow_html=True)
+            st.markdown('<div style="font-size:0.87rem;font-weight:600;margin-bottom:0.4rem;">📊 Evaluation Data</div>', unsafe_allow_html=True)
+            st.markdown('<div style="font-size:0.76rem;color:var(--text3);margin-bottom:0.75rem;">All 5 metric layers: pipeline quality, teacher review, learning outcomes, quality-learning correlations, and adaptive loop data.</div>', unsafe_allow_html=True)
 
-        # Also auto-save to eval_logs for the researcher
-        eval_file = EVAL_LOG_DIR / f"study_{sid}_{stem}.json"
-        with open(eval_file, "w", encoding="utf-8") as f:
-            f.write(eval_json)
+            eval_data = build_comprehensive_eval_export(dict(st.session_state), final_deck, scored)
+            eval_json = json.dumps(eval_data, indent=2, ensure_ascii=False)
+            sid = st.session_state.get("study_session_id", "session")
 
-        st.markdown(f'<div style="font-size:0.7rem;color:var(--text3);margin-top:0.5rem;">Auto-saved to <code>eval_logs/study_{sid}_{stem}.json</code></div>', unsafe_allow_html=True)
+            st.download_button("⬇️ Download Full Eval Data", data=eval_json,
+                               file_name=f"{stem}_eval_{sid}.json", mime="application/json", use_container_width=True)
 
-        st.markdown("<div style='height:1rem'></div>", unsafe_allow_html=True)
-        with st.expander("Preview eval data"):
-            st.code(eval_json[:3000] + ("\n…" if len(eval_json) > 3000 else ""), language="json")
+            # Auto-save for researcher
+            eval_file = EVAL_LOG_DIR / f"study_{sid}_{stem}.json"
+            with open(eval_file, "w", encoding="utf-8") as f:
+                f.write(eval_json)
+            st.markdown(f'<div style="font-size:0.68rem;color:var(--text3);margin-top:0.4rem;">Auto-saved to <code>eval_logs/study_{sid}_{stem}.json</code></div>', unsafe_allow_html=True)
+
+            with st.expander("Preview eval data"):
+                st.code(eval_json[:3000] + ("\n…" if len(eval_json) > 3000 else ""), language="json")
+
+        else:
+            # ── Student: simple, friendly export ──
+            st.markdown(f"""
+            <div style="text-align:center;padding:1.5rem 1rem 1rem;">
+              <div style="font-size:1.5rem;margin-bottom:0.5rem;">📥</div>
+              <div style="font-family:var(--font-d);font-size:1.1rem;font-weight:700;margin-bottom:0.3rem;">Save Your Cards</div>
+              <div style="font-size:0.82rem;color:var(--text3);margin-bottom:1.5rem;max-width:400px;margin-left:auto;margin-right:auto;">
+                Download your {len(final_deck)} flashcards to study offline or import into Anki.
+              </div>
+            </div>""", unsafe_allow_html=True)
+
+            _, btn_col, _ = st.columns([0.5, 2, 0.5])
+            with btn_col:
+                st.download_button(
+                    "⬇️ Download for Anki (TSV)",
+                    data="\n".join(tsv_lines),
+                    file_name=f"{stem}_flashcards.tsv",
+                    mime="text/tab-separated-values",
+                    use_container_width=True,
+                )
+                st.markdown("<div style='height:0.5rem'></div>", unsafe_allow_html=True)
+                st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+                st.download_button(
+                    "⬇️ Download as JSON",
+                    data=json.dumps(
+                        [{"question": c.question, "answer": c.answer} for c in final_deck],
+                        indent=2, ensure_ascii=False),
+                    file_name=f"{stem}_flashcards.json",
+                    mime="application/json",
+                    use_container_width=True,
+                )
+                st.markdown('</div>', unsafe_allow_html=True)
+
+            # Silently save eval data for the researcher (student doesn't see this)
+            eval_data = build_comprehensive_eval_export(dict(st.session_state), final_deck, scored)
+            sid = st.session_state.get("study_session_id", "session")
+            eval_file = EVAL_LOG_DIR / f"student_{sid}_{stem}.json"
+            with open(eval_file, "w", encoding="utf-8") as f:
+                json.dump(eval_data, f, indent=2, ensure_ascii=False)
 
 st.markdown('</div>', unsafe_allow_html=True)

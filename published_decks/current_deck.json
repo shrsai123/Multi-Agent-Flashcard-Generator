@@ -1,125 +1,133 @@
 {
-  "published_at": "2026-04-09T23:13:56",
+  "published_at": "2026-04-10T15:28:23",
   "metadata": {
-    "source_filename": "PDF-12.pdf",
+    "source_filename": "Deep neural networks and Back propagation.pdf",
     "content_type": "theory",
     "provider": "gemini",
     "model": "gemini-3.1-flash-lite-preview",
-    "session_id": "10049935",
+    "session_id": "24050f29",
     "pipeline_metrics": {
-      "timestamp": "2026-04-09T23:09:45",
-      "session_id": "10049935",
-      "source_file": "PDF-12.pdf",
-      "pipeline_duration_sec": 17.8,
+      "timestamp": "2026-04-10T15:26:15",
+      "session_id": "24050f29",
+      "source_file": "Deep neural networks and Back propagation.pdf",
+      "pipeline_duration_sec": 34.1,
       "cards_requested": 5,
       "cards_valid": 5,
-      "composite_mean": 0.954,
-      "composite_min": 0.88,
+      "composite_mean": 0.992,
+      "composite_min": 0.98,
       "composite_max": 1.0,
-      "groundedness_mean": 0.96,
+      "groundedness_mean": 1.0,
       "clarity_mean": 1.0,
       "auto_approved": 5,
       "human_review": 0,
       "auto_rejected": 0,
       "teacher_edits": 0,
       "teacher_overrides": 0,
-      "gold_at_generation": 11,
+      "gold_at_generation": 12,
       "gold_added": 0
     }
   },
   "flashcards": [
     {
-      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
-      "answer": "The intersection of any collection of convex sets is always a convex set.",
-      "difficulty": "medium",
-      "bloom_level": "understand",
-      "source_chunk_id": "chunk_0",
-      "question_type": "concept"
-    },
-    {
-      "question": "How is a convex optimization problem formally defined?",
-      "answer": "It is the problem of minimizing a convex function over a convex set domain.",
-      "difficulty": "medium",
+      "question": "Why is the term 'deep' used to describe Deep Learning??????",
+      "answer": "The term 'deep' refers to the number of layers processed between the input and output layers; the greater the number of layers, the deeper the network.",
+      "difficulty": "easy",
       "bloom_level": "remember",
-      "source_chunk_id": "chunk_0",
+      "source_chunk_id": "chunk_1",
       "question_type": "definition"
     },
     {
-      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
-      "answer": "The SVM aims to find a hyperplane (w, b) that maximizes the margin, which is defined as the distance of the closest data point to the hyperplane.",
-      "difficulty": "hard",
-      "bloom_level": "analyze",
+      "question": "How do Artificial Neural Networks (ANNs) and Deep Neural Networks (DNNs) differ regarding data requirements?",
+      "answer": "Standard neural networks require specific data inputs and amounts, whereas Deep Neural Networks are capable of solving problems without needing a specific amount of data.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
       "source_chunk_id": "chunk_2",
+      "question_type": "comparison"
+    },
+    {
+      "question": "What is the primary function of kernels or filters in Convolutional Neural Networks (CNNs)?",
+      "answer": "Kernels act as the building blocks of CNNs, using conventional operations to extract relevant and correct features from the input data.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "source_chunk_id": "chunk_4",
       "question_type": "concept"
     },
     {
-      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
-      "answer": "Lagrange multipliers are used to incorporate constraints into the objective function, allowing for the optimization of a function subject to equality or inequality constraints.",
+      "question": "What specific limitation of Artificial Neural Networks (ANNs) is the Recurrent Neural Network (RNN) designed to overcome?",
+      "answer": "RNNs are designed to overcome the looping constraint of ANN hidden layers, allowing them to capture sequential information in data like text, audio, and time-series.",
       "difficulty": "hard",
-      "bloom_level": "understand",
-      "source_chunk_id": "chunk_1",
-      "question_type": "application"
+      "bloom_level": "analyze",
+      "source_chunk_id": "chunk_3",
+      "question_type": "concept"
     },
     {
-      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
-      "answer": "The margin is the minimum distance from the hyperplane to the nearest data point; SVM maximizes this worst-case distance to ensure the best separation between classes.",
+      "question": "In a computational graph with 5 layers where each layer has 2 units, how many paths exist between the input and the output?",
+      "answer": "There are 2^5 = 32 paths between the input and output, calculated by the number of units per layer raised to the power of the number of layers.",
       "difficulty": "hard",
       "bloom_level": "apply",
-      "source_chunk_id": "chunk_2",
-      "question_type": "comparison"
+      "source_chunk_id": "chunk_6",
+      "question_type": "application"
     }
   ],
-  "gold_examples": [],
+  "gold_examples": [
+    {
+      "question": "Why is the term 'deep' used to describe Deep Learning??????",
+      "answer": "The term 'deep' refers to the number of layers processed between the input and output layers; the greater the number of layers, the deeper the network.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "question_type": "definition"
+    }
+  ],
   "quality_scores": [
     {
-      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
+      "question": "Why is the term 'deep' used to describe Deep Learning?",
       "composite": 1.0,
       "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 1.0,
       "routing": "auto_approve",
-      "justification": "The answer is directly supported by the source text 'Convexsetsinceitisintersectionofconvexsets' and is clearly phrased for a conceptual understanding."
+      "justification": "The flashcard accurately reflects the source text's definition of deep learning and is appropriately labeled as an easy, recall-based question."
     },
     {
-      "question": "How is a convex optimization problem formally defined?",
+      "question": "How do Artificial Neural Networks (ANNs) and Deep Neural Networks (DNNs) differ regarding data requirements?",
       "composite": 1.0,
       "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 1.0,
       "routing": "auto_approve",
-      "justification": "The answer is directly supported by the source text, clearly stated, and distinct from the existing question about intersections."
+      "justification": "The flashcard accurately reflects the source text's comparison of data requirements and addresses a distinct concept from the existing deck."
     },
     {
-      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
+      "question": "What is the primary function of kernels or filters in Convolutional Neural Networks (CNNs)?",
+      "composite": 1.0,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
+      "routing": "auto_approve",
+      "justification": "The flashcard accurately reflects the source text and addresses a distinct concept not covered by existing questions. The difficulty and Bloom level are appropriately assigned for a conceptual recall task."
+    },
+    {
+      "question": "What specific limitation of Artificial Neural Networks (ANNs) is the Recurrent Neural Network (RNN) designed to overcome?",
       "composite": 0.98,
       "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 0.8,
       "routing": "auto_approve",
-      "justification": "The answer accurately reflects the source material's definition of maximizing the margin. The difficulty is well-calibrated as it requires synthesizing the geometric objective of SVMs."
+      "justification": "The answer is directly supported by the source text and clearly addresses the prompt. The difficulty is well-calibrated, though 'hard' might be slightly subjective given the directness of the answer."
     },
     {
-      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
-      "composite": 0.91,
-      "groundedness": 0.8,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 0.9,
-      "routing": "auto_approve",
-      "justification": "The source text mentions Lagrange multipliers and Lagrangian functions in the context of optimization, supporting the answer. The question is distinct from existing deck items and appropriately categorized as hard/understand."
-    },
-    {
-      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
-      "composite": 0.88,
+      "question": "In a computational graph with 5 layers where each layer has 2 units, how many paths exist between the input and the output?",
+      "composite": 0.98,
       "groundedness": 1.0,
       "clarity": 1.0,
-      "uniqueness": 0.5,
+      "uniqueness": 1.0,
       "difficulty_calibration": 0.8,
       "routing": "auto_approve",
-      "justification": "The content is well-supported by the source text, though it overlaps significantly with the existing question regarding the primary objective of an SVM."
+      "justification": "The flashcard accurately reflects the provided source text. The difficulty is labeled as 'hard', though it is more of a straightforward application of a formula provided in the text, making it closer to 'medium'."
     }
   ]
 }

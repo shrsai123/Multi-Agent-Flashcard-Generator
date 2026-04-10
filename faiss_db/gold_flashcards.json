@@ -75,5 +75,19 @@
     "difficulty": "hard",
     "bloom_level": "understand",
     "question_type": "application"
+  },
+  {
+    "question": "What is the primary function of the backward phase in backpropagation??????",
+    "answer": "The backward phase computes the gradient of the loss function with respect to the various weights in the network.",
+    "difficulty": "medium",
+    "bloom_level": "remember",
+    "question_type": "definition"
+  },
+  {
+    "question": "Why is the term 'deep' used to describe Deep Learning??????",
+    "answer": "The term 'deep' refers to the number of layers processed between the input and output layers; the greater the number of layers, the deeper the network.",
+    "difficulty": "easy",
+    "bloom_level": "remember",
+    "question_type": "definition"
   }
 ]
