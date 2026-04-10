@@ -1,0 +1,133 @@
+{
+  "published_at": "2026-04-10T15:28:23",
+  "metadata": {
+    "source_filename": "Deep neural networks and Back propagation.pdf",
+    "content_type": "theory",
+    "provider": "gemini",
+    "model": "gemini-3.1-flash-lite-preview",
+    "session_id": "24050f29",
+    "pipeline_metrics": {
+      "timestamp": "2026-04-10T15:26:15",
+      "session_id": "24050f29",
+      "source_file": "Deep neural networks and Back propagation.pdf",
+      "pipeline_duration_sec": 34.1,
+      "cards_requested": 5,
+      "cards_valid": 5,
+      "composite_mean": 0.992,
+      "composite_min": 0.98,
+      "composite_max": 1.0,
+      "groundedness_mean": 1.0,
+      "clarity_mean": 1.0,
+      "auto_approved": 5,
+      "human_review": 0,
+      "auto_rejected": 0,
+      "teacher_edits": 0,
+      "teacher_overrides": 0,
+      "gold_at_generation": 12,
+      "gold_added": 0
+    }
+  },
+  "flashcards": [
+    {
+      "question": "Why is the term 'deep' used to describe Deep Learning??????",
+      "answer": "The term 'deep' refers to the number of layers processed between the input and output layers; the greater the number of layers, the deeper the network.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "source_chunk_id": "chunk_1",
+      "question_type": "definition"
+    },
+    {
+      "question": "How do Artificial Neural Networks (ANNs) and Deep Neural Networks (DNNs) differ regarding data requirements?",
+      "answer": "Standard neural networks require specific data inputs and amounts, whereas Deep Neural Networks are capable of solving problems without needing a specific amount of data.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "source_chunk_id": "chunk_2",
+      "question_type": "comparison"
+    },
+    {
+      "question": "What is the primary function of kernels or filters in Convolutional Neural Networks (CNNs)?",
+      "answer": "Kernels act as the building blocks of CNNs, using conventional operations to extract relevant and correct features from the input data.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "source_chunk_id": "chunk_4",
+      "question_type": "concept"
+    },
+    {
+      "question": "What specific limitation of Artificial Neural Networks (ANNs) is the Recurrent Neural Network (RNN) designed to overcome?",
+      "answer": "RNNs are designed to overcome the looping constraint of ANN hidden layers, allowing them to capture sequential information in data like text, audio, and time-series.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "source_chunk_id": "chunk_3",
+      "question_type": "concept"
+    },
+    {
+      "question": "In a computational graph with 5 layers where each layer has 2 units, how many paths exist between the input and the output?",
+      "answer": "There are 2^5 = 32 paths between the input and output, calculated by the number of units per layer raised to the power of the number of layers.",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "source_chunk_id": "chunk_6",
+      "question_type": "application"
+    }
+  ],
+  "gold_examples": [
+    {
+      "question": "Why is the term 'deep' used to describe Deep Learning??????",
+      "answer": "The term 'deep' refers to the number of layers processed between the input and output layers; the greater the number of layers, the deeper the network.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "question_type": "definition"
+    }
+  ],
+  "quality_scores": [
+    {
+      "question": "Why is the term 'deep' used to describe Deep Learning?",
+      "composite": 1.0,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
+      "routing": "auto_approve",
+      "justification": "The flashcard accurately reflects the source text's definition of deep learning and is appropriately labeled as an easy, recall-based question."
+    },
+    {
+      "question": "How do Artificial Neural Networks (ANNs) and Deep Neural Networks (DNNs) differ regarding data requirements?",
+      "composite": 1.0,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
+      "routing": "auto_approve",
+      "justification": "The flashcard accurately reflects the source text's comparison of data requirements and addresses a distinct concept from the existing deck."
+    },
+    {
+      "question": "What is the primary function of kernels or filters in Convolutional Neural Networks (CNNs)?",
+      "composite": 1.0,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
+      "routing": "auto_approve",
+      "justification": "The flashcard accurately reflects the source text and addresses a distinct concept not covered by existing questions. The difficulty and Bloom level are appropriately assigned for a conceptual recall task."
+    },
+    {
+      "question": "What specific limitation of Artificial Neural Networks (ANNs) is the Recurrent Neural Network (RNN) designed to overcome?",
+      "composite": 0.98,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 0.8,
+      "routing": "auto_approve",
+      "justification": "The answer is directly supported by the source text and clearly addresses the prompt. The difficulty is well-calibrated, though 'hard' might be slightly subjective given the directness of the answer."
+    },
+    {
+      "question": "In a computational graph with 5 layers where each layer has 2 units, how many paths exist between the input and the output?",
+      "composite": 0.98,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 0.8,
+      "routing": "auto_approve",
+      "justification": "The flashcard accurately reflects the provided source text. The difficulty is labeled as 'hard', though it is more of a straightforward application of a formula provided in the text, making it closer to 'medium'."
+    }
+  ]
+}

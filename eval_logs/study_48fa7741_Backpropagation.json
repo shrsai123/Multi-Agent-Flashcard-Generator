@@ -1,0 +1,181 @@
+{
+  "session_id": "48fa7741",
+  "role": "student",
+  "export_timestamp": "2026-04-09T18:59:32",
+  "source": "Backpropagation.pdf",
+  "content_type": "math",
+  "pipeline_metrics": {},
+  "gold_examples_total": 0,
+  "gold_this_session": [],
+  "quality_summary": {
+    "total_scored": 0,
+    "mean": 0.0,
+    "best": 0,
+    "worst": 0,
+    "high_count": 0,
+    "mid_count": 0,
+    "low_count": 1
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "How does the number of paths in a computational graph change as the depth of the network increases?",
+      "answer": "The number of paths in a computational graph increases exponentially as the depth of the network increases.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": 3.78,
+      "flip_count": 2
+    },
+    {
+      "index": 1,
+      "question": "What mathematical operation must be performed to calculate the total derivative in a computational graph with multiple paths?",
+      "answer": "One must add the product of the local derivatives calculated along every individual path from input to output.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "question_type": "application",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": 6.24,
+      "flip_count": 2
+    },
+    {
+      "index": 2,
+      "question": "If a network has 5 layers and each layer contains 2 units, how many paths exist between the input and output?",
+      "answer": "There are 32 paths (calculated as 2 to the power of 5).",
+      "difficulty": "medium",
+      "bloom_level": "apply",
+      "question_type": "application",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": 2.73,
+      "flip_count": 2
+    },
+    {
+      "index": 3,
+      "question": "How is the jth hidden unit of the ith layer, denoted as h(i, j), mathematically defined in this context?",
+      "answer": "The hidden unit is defined as the product of its inputs.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "question_type": "definition",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": null,
+      "flip_count": 0
+    },
+    {
+      "index": 4,
+      "question": "What is the primary factor that causes the number of paths in a computational graph to grow?",
+      "answer": "The depth of the network, which leads to an exponentially increasing number of paths.",
+      "difficulty": "easy",
+      "bloom_level": "understand",
+      "question_type": "concept",
+      "source_chunk_id": "chunk_0",
+      "composite_score": null,
+      "study_time_sec": null,
+      "flip_count": 0
+    }
+  ],
+  "flip_timestamps": {
+    "0": [
+      1775775516.1804368,
+      1775775519.963403
+    ],
+    "1": [
+      1775775559.1052642,
+      1775775565.3486369
+    ],
+    "2": [
+      1775775569.0550356,
+      1775775571.789352
+    ]
+  },
+  "sm2_state": {
+    "0": {
+      "card_index": 0,
+      "easiness_factor": 2.5,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775861919.963403,
+      "last_reviewed": 1775775519.963403,
+      "review_count": 1,
+      "review_history": [
+        {
+          "timestamp": 1775775519.963403,
+          "quality": 4
+        }
+      ]
+    },
+    "1": {
+      "card_index": 1,
+      "easiness_factor": 1.96,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": 1775775565.3486369,
+      "last_reviewed": 1775775565.3486369,
+      "review_count": 1,
+      "review_history": [
+        {
+          "timestamp": 1775775565.3486369,
+          "quality": 1
+        }
+      ]
+    },
+    "2": {
+      "card_index": 2,
+      "easiness_factor": 2.6,
+      "interval": 1,
+      "repetitions": 1,
+      "next_review": 1775861971.789352,
+      "last_reviewed": 1775775571.789352,
+      "review_count": 1,
+      "review_history": [
+        {
+          "timestamp": 1775775571.789352,
+          "quality": 5
+        }
+      ]
+    },
+    "3": {
+      "card_index": 3,
+      "easiness_factor": 2.5,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": null,
+      "last_reviewed": null,
+      "review_count": 0,
+      "review_history": []
+    },
+    "4": {
+      "card_index": 4,
+      "easiness_factor": 2.5,
+      "interval": 0,
+      "repetitions": 0,
+      "next_review": null,
+      "last_reviewed": null,
+      "review_count": 0,
+      "review_history": []
+    }
+  },
+  "sm2_summary": {
+    "new": 0,
+    "due": 3,
+    "learning": 2,
+    "mastered": 0,
+    "total_reviews": 3
+  },
+  "review_decisions": {},
+  "user_survey": {
+    "session_id": "48fa7741",
+    "role": "student",
+    "timestamp": "2026-04-09T18:59:10",
+    "trust_score": 2,
+    "satisfaction_score": 3,
+    "perceived_difficulty": "Too easy",
+    "would_use_again": "Yes",
+    "edit_control_helped_trust": "Yes",
+    "free_text": ""
+  }
+}

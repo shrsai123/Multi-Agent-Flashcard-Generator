@@ -1,0 +1,16 @@
+[server]
+headless = true
+
+[client]
+toolbarMode = "minimal"
+showErrorDetails = false
+
+[ui]
+hideTopBar = true
+
+[theme]
+base = "dark"
+backgroundColor = "#070910"
+secondaryBackgroundColor = "#111320"
+textColor = "#f1f5f9"
+font = "sans serif"

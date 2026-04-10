@@ -2,7 +2,7 @@ import json
 import re
 from typing import List, Dict
 from langchain_core.messages import SystemMessage, HumanMessage
-from sympy import content
+
 
 from core.models import Flashcard, FlashcardState
 from vector_store import VectorStoreManager

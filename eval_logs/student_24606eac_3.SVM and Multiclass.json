@@ -1,0 +1,126 @@
+{
+  "session_id": "24606eac",
+  "role": "student",
+  "timestamp": "2026-04-10T14:19:03",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-10T14:15:02",
+    "session_id": "d51db9d5",
+    "source_file": "3.SVM and Multiclass.pdf",
+    "pipeline_duration_sec": 39.6,
+    "cards_requested": 5,
+    "cards_valid": 5,
+    "composite_mean": 0.988,
+    "composite_min": 0.97,
+    "composite_max": 1.0,
+    "groundedness_mean": 1.0,
+    "clarity_mean": 1.0,
+    "auto_approved": 5,
+    "human_review": 0,
+    "auto_rejected": 0,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 1.0,
+    "cards_studied": 4,
+    "completion_rate": 1.0,
+    "total_reviews": 4,
+    "rating_distribution": {
+      "again": 0.0,
+      "hard": 0.25,
+      "good": 0.5,
+      "easy": 0.25
+    },
+    "session_duration_sec": 30.0
+  },
+  "quality_correlations": {
+    "high_quality_recall": 1.0,
+    "low_quality_recall": 0.0,
+    "quality_advantage": 1.0,
+    "high_quality_cards": 4,
+    "low_quality_cards": 0
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      2,
+      3
+    ],
+    "pre_total": 2,
+    "post_total": 8,
+    "max_score": 8,
+    "learning_gain": 6,
+    "per_card": {
+      "0": {
+        "pre": 1,
+        "post": 2
+      },
+      "1": {
+        "pre": 0,
+        "post": 2
+      },
+      "2": {
+        "pre": 1,
+        "post": 2
+      },
+      "3": {
+        "pre": 0,
+        "post": 2
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "In the context of hinge-loss, under what conditions is a training instance penalized?",
+      "answer": "A positive training instance is penalized if its value is less than 1, and a negative training instance is penalized if its value is greater than -1.",
+      "difficulty": "medium",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 3,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 1,
+      "question": "How does the penalty behavior of a Support Vector Machine differ from logistic regression when a target value is exceeded?",
+      "answer": "In logistic regression, the loss function shows diminishing improvement as the value increases beyond +1; in an SVM, the hinge-loss function flattens out entirely, meaning points beyond that boundary are not penalized.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "composite_score": 0.97,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 2,
+      "question": "In a multiclass model with k classes, what is the primary objective when determining the linear separators W1 through Wk?",
+      "answer": "The objective is to find separators such that for any instance Xi, the value of Wc(i) · Xi is larger than the value of Wr · Xi for all other classes r not equal to the true class c(i).",
+      "difficulty": "hard",
+      "bloom_level": "understand",
+      "composite_score": 0.97,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 3,
+      "question": "How does the gradient-descent update process behave for correctly classified instances in a multiclass perceptron?",
+      "answer": "For a correctly classified instance, the gradient is always zero, resulting in no updates to the model weights.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 5,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    }
+  ],
+  "user_survey": null
+}
