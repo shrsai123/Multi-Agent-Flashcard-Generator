@@ -1,0 +1,158 @@
+{
+  "session_id": "c1e4d69a",
+  "role": "student",
+  "timestamp": "2026-04-09T23:15:20",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-09T23:09:45",
+    "session_id": "10049935",
+    "source_file": "PDF-12.pdf",
+    "pipeline_duration_sec": 17.8,
+    "cards_requested": 5,
+    "cards_valid": 5,
+    "composite_mean": 0.954,
+    "composite_min": 0.88,
+    "composite_max": 1.0,
+    "groundedness_mean": 0.96,
+    "clarity_mean": 1.0,
+    "auto_approved": 5,
+    "human_review": 0,
+    "auto_rejected": 0,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 0.8,
+    "cards_studied": 5,
+    "completion_rate": 1.0,
+    "total_reviews": 6,
+    "rating_distribution": {
+      "again": 0.167,
+      "hard": 0.0,
+      "good": 0.833,
+      "easy": 0.0
+    },
+    "session_duration_sec": 14.4
+  },
+  "quality_correlations": {
+    "high_quality_recall": 0.8,
+    "low_quality_recall": 0.0,
+    "quality_advantage": 0.8,
+    "high_quality_cards": 5,
+    "low_quality_cards": 0
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "pre_total": 3,
+    "post_total": 10,
+    "max_score": 10,
+    "learning_gain": 7,
+    "per_card": {
+      "0": {
+        "pre": 1,
+        "post": 2
+      },
+      "1": {
+        "pre": 1,
+        "post": 2
+      },
+      "2": {
+        "pre": 1,
+        "post": 2
+      },
+      "3": {
+        "pre": 0,
+        "post": 2
+      },
+      "4": {
+        "pre": 0,
+        "post": 2
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
+      "answer": "The intersection of any collection of convex sets is always a convex set.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 1,
+      "question": "How is a convex optimization problem formally defined?",
+      "answer": "It is the problem of minimizing a convex function over a convex set domain.",
+      "difficulty": "medium",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 2,
+      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
+      "answer": "The SVM aims to find a hyperplane (w, b) that maximizes the margin, which is defined as the distance of the closest data point to the hyperplane.",
+      "difficulty": "hard",
+      "bloom_level": "analyze",
+      "composite_score": 0.98,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 3,
+      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
+      "answer": "Lagrange multipliers are used to incorporate constraints into the objective function, allowing for the optimization of a function subject to equality or inequality constraints.",
+      "difficulty": "hard",
+      "bloom_level": "understand",
+      "composite_score": 0.91,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 4,
+      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
+      "answer": "The margin is the minimum distance from the hyperplane to the nearest data point; SVM maximizes this worst-case distance to ensure the best separation between classes.",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "composite_score": 0.88,
+      "routing": "auto_approve",
+      "sm2_first_rating": 1,
+      "sm2_reviews": 2,
+      "sm2_interval": 1
+    }
+  ],
+  "user_survey": {
+    "session_id": "c1e4d69a",
+    "role": "student",
+    "timestamp": "2026-04-09T23:15:20",
+    "trust": 4,
+    "satisfaction": 4,
+    "learning_value": 4,
+    "perceived_difficulty": "Just right",
+    "would_use_again": "Yes",
+    "free_text": "",
+    "study_confidence": 4,
+    "prefer_over_manual": 4,
+    "pre_test_total": 3,
+    "post_test_total": 10,
+    "learning_gain": 7
+  }
+}

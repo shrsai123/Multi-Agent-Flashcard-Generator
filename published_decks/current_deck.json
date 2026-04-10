@@ -1,132 +1,125 @@
 {
-  "published_at": "2026-04-08T15:22:40",
+  "published_at": "2026-04-09T23:13:56",
   "metadata": {
-    "source_filename": "PDF-15.pdf",
+    "source_filename": "PDF-12.pdf",
     "content_type": "theory",
     "provider": "gemini",
     "model": "gemini-3.1-flash-lite-preview",
-    "session_id": "b579d62b",
+    "session_id": "10049935",
     "pipeline_metrics": {
-      "timestamp": "2026-04-08T15:22:24",
-      "session_id": "b579d62b",
-      "source_file": "PDF-15.pdf",
-      "content_type": "theory",
-      "provider": "gemini",
-      "model": "gemini-3.1-flash-lite-preview",
-      "pipeline_duration_sec": 36.3,
+      "timestamp": "2026-04-09T23:09:45",
+      "session_id": "10049935",
+      "source_file": "PDF-12.pdf",
+      "pipeline_duration_sec": 17.8,
       "cards_requested": 5,
-      "cards_parsed_valid": 5,
-      "generation_success_rate": 1.0,
-      "composite_mean": 0.848,
-      "composite_min": 0.62,
+      "cards_valid": 5,
+      "composite_mean": 0.954,
+      "composite_min": 0.88,
       "composite_max": 1.0,
-      "composite_std": 0.1709,
-      "groundedness_mean": 0.66,
-      "clarity_mean": 0.98,
-      "uniqueness_mean": 1.0,
-      "difficulty_cal_mean": 0.9,
-      "auto_approve_count": 3,
-      "human_review_count": 2,
-      "auto_reject_count": 0,
-      "auto_approve_rate": 0.6,
-      "human_review_rate": 0.4,
-      "auto_reject_rate": 0.0,
-      "gold_examples_at_generation": 10
+      "groundedness_mean": 0.96,
+      "clarity_mean": 1.0,
+      "auto_approved": 5,
+      "human_review": 0,
+      "auto_rejected": 0,
+      "teacher_edits": 0,
+      "teacher_overrides": 0,
+      "gold_at_generation": 11,
+      "gold_added": 0
     }
   },
   "flashcards": [
     {
-      "question": "What is the defining structural characteristic of a Feedforward Neural Network (Multi-layer perceptron)?",
-      "answer": "Neurons are organized in multiple layers where the output of one layer serves as the input to the subsequent layer.",
+      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
+      "answer": "The intersection of any collection of convex sets is always a convex set.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "source_chunk_id": "chunk_0",
+      "question_type": "concept"
+    },
+    {
+      "question": "How is a convex optimization problem formally defined?",
+      "answer": "It is the problem of minimizing a convex function over a convex set domain.",
       "difficulty": "medium",
       "bloom_level": "remember",
       "source_chunk_id": "chunk_0",
       "question_type": "definition"
     },
     {
-      "question": "How does the objective function for regression differ from multiclass classification in neural networks?",
-      "answer": "Regression typically uses Mean Squared Error (MSE) to measure discrepancy, while multiclass classification uses Cross-Entropy (CE), where the sum of output probabilities equals one.",
+      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
+      "answer": "The SVM aims to find a hyperplane (w, b) that maximizes the margin, which is defined as the distance of the closest data point to the hyperplane.",
       "difficulty": "hard",
       "bloom_level": "analyze",
-      "source_chunk_id": "chunk_1",
-      "question_type": "comparison"
-    },
-    {
-      "question": "What is the primary purpose of backpropagation in training a neural network?",
-      "answer": "Backpropagation is used to compute the derivative of the loss function with respect to the weights and biases across different layers, starting from the output layer and moving backward.",
-      "difficulty": "medium",
-      "bloom_level": "understand",
       "source_chunk_id": "chunk_2",
       "question_type": "concept"
     },
     {
-      "question": "Why is the activation function applied element-wise to the result of the weighted sum and bias?",
-      "answer": "It introduces non-linearity into the network, allowing it to learn complex feature representations rather than just performing linear transformations.",
+      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
+      "answer": "Lagrange multipliers are used to incorporate constraints into the objective function, allowing for the optimization of a function subject to equality or inequality constraints.",
       "difficulty": "hard",
-      "bloom_level": "apply",
+      "bloom_level": "understand",
       "source_chunk_id": "chunk_1",
       "question_type": "application"
     },
     {
-      "question": "In the context of backpropagation, why are biases typically excluded from regularization?",
-      "answer": "Regularization is applied to weights to prevent overfitting by penalizing large values, but it is standard practice to not regularize bias terms.",
-      "difficulty": "medium",
-      "bloom_level": "remember",
+      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
+      "answer": "The margin is the minimum distance from the hyperplane to the nearest data point; SVM maximizes this worst-case distance to ensure the best separation between classes.",
+      "difficulty": "hard",
+      "bloom_level": "apply",
       "source_chunk_id": "chunk_2",
-      "question_type": "concept"
+      "question_type": "comparison"
     }
   ],
   "gold_examples": [],
   "quality_scores": [
     {
-      "question": "What is the defining structural characteristic of a Feedforward Neural Network (Multi-layer perceptron)?",
+      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
       "composite": 1.0,
       "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 1.0,
       "routing": "auto_approve",
-      "justification": "The answer is directly supported by the source text and clearly defines the structural architecture of a Feedforward Neural Network."
+      "justification": "The answer is directly supported by the source text 'Convexsetsinceitisintersectionofconvexsets' and is clearly phrased for a conceptual understanding."
     },
     {
-      "question": "How does the objective function for regression differ from multiclass classification in neural networks?",
+      "question": "How is a convex optimization problem formally defined?",
       "composite": 1.0,
       "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 1.0,
       "routing": "auto_approve",
-      "justification": "The answer accurately synthesizes the source text's distinction between regression (sum of squared errors) and multiclass classification (cross-entropy with sum of probabilities equal to one)."
+      "justification": "The answer is directly supported by the source text, clearly stated, and distinct from the existing question about intersections."
     },
     {
-      "question": "What is the primary purpose of backpropagation in training a neural network?",
-      "composite": 0.96,
-      "groundedness": 0.9,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 1.0,
-      "routing": "auto_approve",
-      "justification": "The answer is well-supported by the provided text, which explicitly mentions computing loss derivatives with respect to weights and biases. The question is clear, unique compared to the existing deck, and appropriately labeled as medium difficulty."
-    },
-    {
-      "question": "Why is the activation function applied element-wise to the result of the weighted sum and bias?",
-      "composite": 0.66,
-      "groundedness": 0.2,
+      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
+      "composite": 0.98,
+      "groundedness": 1.0,
       "clarity": 1.0,
       "uniqueness": 1.0,
       "difficulty_calibration": 0.8,
-      "routing": "human_review",
-      "justification": "The source text is highly fragmented and does not explicitly explain the purpose of non-linearity, though the question is clear and distinct from existing cards."
+      "routing": "auto_approve",
+      "justification": "The answer accurately reflects the source material's definition of maximizing the margin. The difficulty is well-calibrated as it requires synthesizing the geometric objective of SVMs."
     },
     {
-      "question": "In the context of backpropagation, why are biases typically excluded from regularization?",
-      "composite": 0.62,
-      "groundedness": 0.2,
-      "clarity": 0.9,
+      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
+      "composite": 0.91,
+      "groundedness": 0.8,
+      "clarity": 1.0,
       "uniqueness": 1.0,
-      "difficulty_calibration": 0.7,
-      "routing": "human_review",
-      "justification": "The source text contains the phrase 'We do not regularize on bias', providing minimal grounding, but the answer relies on external knowledge not present in the provided text. The concept is unique and the difficulty is appropriately labeled."
+      "difficulty_calibration": 0.9,
+      "routing": "auto_approve",
+      "justification": "The source text mentions Lagrange multipliers and Lagrangian functions in the context of optimization, supporting the answer. The question is distinct from existing deck items and appropriately categorized as hard/understand."
+    },
+    {
+      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
+      "composite": 0.88,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 0.5,
+      "difficulty_calibration": 0.8,
+      "routing": "auto_approve",
+      "justification": "The content is well-supported by the source text, though it overlaps significantly with the existing question regarding the primary objective of an SVM."
     }
   ]
 }

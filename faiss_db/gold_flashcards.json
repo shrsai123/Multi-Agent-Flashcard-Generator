@@ -68,5 +68,12 @@
     "difficulty": "hard",
     "bloom_level": "analyze",
     "question_type": "definition"
+  },
+  {
+    "question": "What is activation function?",
+    "answer": "An activation function in a neural network is a mathematical function applied to the output of a neuron. It introduces non-linearity, enabling the model to learn and represent complex data patterns. ",
+    "difficulty": "hard",
+    "bloom_level": "understand",
+    "question_type": "application"
   }
 ]
