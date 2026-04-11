@@ -7,8 +7,7 @@ langchain-google-genai
 # HuggingFace (FREE inference API)
 langchain-huggingface
 
-
-chromadb
+torchvision
 sentence-transformers
 
 # ─── PDF Parsing ───
