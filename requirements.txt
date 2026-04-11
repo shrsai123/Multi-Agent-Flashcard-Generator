@@ -6,7 +6,7 @@ langchain-google-genai
 
 # HuggingFace (FREE inference API)
 langchain-huggingface
-
+faiss
 torchvision
 sentence-transformers
 
