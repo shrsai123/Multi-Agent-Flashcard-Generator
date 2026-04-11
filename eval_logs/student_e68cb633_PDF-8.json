@@ -1,0 +1,158 @@
+{
+  "session_id": "e68cb633",
+  "role": "student",
+  "timestamp": "2026-04-10T17:50:08",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-10T17:48:10",
+    "session_id": "42195c3d",
+    "source_file": "PDF-8.pdf",
+    "pipeline_duration_sec": 28.0,
+    "cards_requested": 5,
+    "cards_valid": 5,
+    "composite_mean": 0.93,
+    "composite_min": 0.78,
+    "composite_max": 1.0,
+    "groundedness_mean": 0.88,
+    "clarity_mean": 0.98,
+    "auto_approved": 4,
+    "human_review": 1,
+    "auto_rejected": 0,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 1.0,
+    "cards_studied": 5,
+    "completion_rate": 1.0,
+    "total_reviews": 5,
+    "rating_distribution": {
+      "again": 0.0,
+      "hard": 0.0,
+      "good": 1.0,
+      "easy": 0.0
+    },
+    "session_duration_sec": 13.0
+  },
+  "quality_correlations": {
+    "high_quality_recall": 1.0,
+    "low_quality_recall": 1.0,
+    "quality_advantage": 0.0,
+    "high_quality_cards": 4,
+    "low_quality_cards": 1
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "pre_total": 6,
+    "post_total": 10,
+    "max_score": 10,
+    "learning_gain": 4,
+    "per_card": {
+      "0": {
+        "pre": 1,
+        "post": 2
+      },
+      "1": {
+        "pre": 1,
+        "post": 2
+      },
+      "2": {
+        "pre": 1,
+        "post": 2
+      },
+      "3": {
+        "pre": 1,
+        "post": 2
+      },
+      "4": {
+        "pre": 2,
+        "post": 2
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the primary objective of Cross-Entropy (CE) loss in the context of multiclass classification?",
+      "answer": "The objective is to minimize the CE loss function across the training dataset by adjusting model parameters to correctly predict the class index y, represented as a one-hot encoded vector.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.92,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 1,
+      "question": "What is the definition of independent and identically distributed (i.i.d.) random variables?",
+      "answer": "Random variables are i.i.d. if they all originate from the same probability distribution and are mutually independent of one another.",
+      "difficulty": "medium",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 2,
+      "question": "How is the joint distribution of independent random variables calculated?",
+      "answer": "For independent random variables X and Y, the joint distribution is the product of their individual marginal distributions: P(X, Y) = P(X)P(Y).",
+      "difficulty": "hard",
+      "bloom_level": "apply",
+      "composite_score": 0.95,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 3,
+      "question": "In the context of Bernoulli random variables, what does the parameter p represent?",
+      "answer": "In a Bernoulli distribution (e.g., tossing a coin), p represents the probability of a specific outcome, such as the probability of the result being 'heads'.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 4,
+      "question": "How does a discrete random variable differ from a continuous random variable?",
+      "answer": "A discrete random variable takes on specific, countable outcomes (e.g., 0 or 1), whereas a continuous random variable takes on values within a range and is associated with a probability density function (PDF).",
+      "difficulty": "medium",
+      "bloom_level": "analyze",
+      "composite_score": 0.78,
+      "routing": "human_review",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    }
+  ],
+  "user_survey": {
+    "session_id": "e68cb633",
+    "role": "student",
+    "timestamp": "2026-04-10T17:50:08",
+    "trust": 4,
+    "satisfaction": 4,
+    "learning_value": 4,
+    "perceived_difficulty": "Just right",
+    "would_use_again": "Yes",
+    "free_text": "",
+    "study_confidence": 4,
+    "prefer_over_manual": 4,
+    "pre_test_total": 6,
+    "post_test_total": 10,
+    "learning_gain": 4
+  }
+}

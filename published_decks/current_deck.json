@@ -1,25 +1,25 @@
 {
-  "published_at": "2026-04-09T23:13:56",
+  "published_at": "2026-04-10T17:48:30",
   "metadata": {
-    "source_filename": "PDF-12.pdf",
+    "source_filename": "PDF-8.pdf",
     "content_type": "theory",
     "provider": "gemini",
     "model": "gemini-3.1-flash-lite-preview",
-    "session_id": "10049935",
+    "session_id": "42195c3d",
     "pipeline_metrics": {
-      "timestamp": "2026-04-09T23:09:45",
-      "session_id": "10049935",
-      "source_file": "PDF-12.pdf",
-      "pipeline_duration_sec": 17.8,
+      "timestamp": "2026-04-10T17:48:10",
+      "session_id": "42195c3d",
+      "source_file": "PDF-8.pdf",
+      "pipeline_duration_sec": 28.0,
       "cards_requested": 5,
       "cards_valid": 5,
-      "composite_mean": 0.954,
-      "composite_min": 0.88,
+      "composite_mean": 0.93,
+      "composite_min": 0.78,
       "composite_max": 1.0,
-      "groundedness_mean": 0.96,
-      "clarity_mean": 1.0,
-      "auto_approved": 5,
-      "human_review": 0,
+      "groundedness_mean": 0.88,
+      "clarity_mean": 0.98,
+      "auto_approved": 4,
+      "human_review": 1,
       "auto_rejected": 0,
       "teacher_edits": 0,
       "teacher_overrides": 0,
@@ -29,97 +29,97 @@
   },
   "flashcards": [
     {
-      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
-      "answer": "The intersection of any collection of convex sets is always a convex set.",
+      "question": "What is the primary objective of Cross-Entropy (CE) loss in the context of multiclass classification?",
+      "answer": "The objective is to minimize the CE loss function across the training dataset by adjusting model parameters to correctly predict the class index y, represented as a one-hot encoded vector.",
       "difficulty": "medium",
       "bloom_level": "understand",
       "source_chunk_id": "chunk_0",
       "question_type": "concept"
     },
     {
-      "question": "How is a convex optimization problem formally defined?",
-      "answer": "It is the problem of minimizing a convex function over a convex set domain.",
+      "question": "What is the definition of independent and identically distributed (i.i.d.) random variables?",
+      "answer": "Random variables are i.i.d. if they all originate from the same probability distribution and are mutually independent of one another.",
       "difficulty": "medium",
       "bloom_level": "remember",
-      "source_chunk_id": "chunk_0",
+      "source_chunk_id": "chunk_3",
       "question_type": "definition"
     },
     {
-      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
-      "answer": "The SVM aims to find a hyperplane (w, b) that maximizes the margin, which is defined as the distance of the closest data point to the hyperplane.",
-      "difficulty": "hard",
-      "bloom_level": "analyze",
-      "source_chunk_id": "chunk_2",
-      "question_type": "concept"
-    },
-    {
-      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
-      "answer": "Lagrange multipliers are used to incorporate constraints into the objective function, allowing for the optimization of a function subject to equality or inequality constraints.",
-      "difficulty": "hard",
-      "bloom_level": "understand",
-      "source_chunk_id": "chunk_1",
-      "question_type": "application"
-    },
-    {
-      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
-      "answer": "The margin is the minimum distance from the hyperplane to the nearest data point; SVM maximizes this worst-case distance to ensure the best separation between classes.",
+      "question": "How is the joint distribution of independent random variables calculated?",
+      "answer": "For independent random variables X and Y, the joint distribution is the product of their individual marginal distributions: P(X, Y) = P(X)P(Y).",
       "difficulty": "hard",
       "bloom_level": "apply",
       "source_chunk_id": "chunk_2",
+      "question_type": "application"
+    },
+    {
+      "question": "In the context of Bernoulli random variables, what does the parameter p represent?",
+      "answer": "In a Bernoulli distribution (e.g., tossing a coin), p represents the probability of a specific outcome, such as the probability of the result being 'heads'.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "source_chunk_id": "chunk_3",
+      "question_type": "definition"
+    },
+    {
+      "question": "How does a discrete random variable differ from a continuous random variable?",
+      "answer": "A discrete random variable takes on specific, countable outcomes (e.g., 0 or 1), whereas a continuous random variable takes on values within a range and is associated with a probability density function (PDF).",
+      "difficulty": "medium",
+      "bloom_level": "analyze",
+      "source_chunk_id": "chunk_1",
       "question_type": "comparison"
     }
   ],
   "gold_examples": [],
   "quality_scores": [
     {
-      "question": "What is the defining characteristic of a convex set regarding the intersection of multiple convex sets?",
-      "composite": 1.0,
-      "groundedness": 1.0,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 1.0,
-      "routing": "auto_approve",
-      "justification": "The answer is directly supported by the source text 'Convexsetsinceitisintersectionofconvexsets' and is clearly phrased for a conceptual understanding."
-    },
-    {
-      "question": "How is a convex optimization problem formally defined?",
-      "composite": 1.0,
-      "groundedness": 1.0,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 1.0,
-      "routing": "auto_approve",
-      "justification": "The answer is directly supported by the source text, clearly stated, and distinct from the existing question about intersections."
-    },
-    {
-      "question": "What is the primary objective of a Support Vector Machine (SVM) when choosing a hyperplane?",
-      "composite": 0.98,
-      "groundedness": 1.0,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 0.8,
-      "routing": "auto_approve",
-      "justification": "The answer accurately reflects the source material's definition of maximizing the margin. The difficulty is well-calibrated as it requires synthesizing the geometric objective of SVMs."
-    },
-    {
-      "question": "Why are Lagrange multipliers used in the context of constrained optimization problems?",
-      "composite": 0.91,
-      "groundedness": 0.8,
-      "clarity": 1.0,
+      "question": "What is the primary objective of Cross-Entropy (CE) loss in the context of multiclass classification?",
+      "composite": 0.92,
+      "groundedness": 0.9,
+      "clarity": 0.9,
       "uniqueness": 1.0,
       "difficulty_calibration": 0.9,
       "routing": "auto_approve",
-      "justification": "The source text mentions Lagrange multipliers and Lagrangian functions in the context of optimization, supporting the answer. The question is distinct from existing deck items and appropriately categorized as hard/understand."
+      "justification": "The answer accurately reflects the source material's discussion on generalizing binary classification to multiclass using one-hot encoding, though the source text is heavily corrupted by OCR errors."
     },
     {
-      "question": "How does the distance of an arbitrary point x from a hyperplane defined by wTx + b = 0 affect the classification margin in SVM?",
-      "composite": 0.88,
+      "question": "How does a discrete random variable differ from a continuous random variable?",
+      "composite": 0.78,
+      "groundedness": 0.5,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 0.8,
+      "routing": "human_review",
+      "justification": "The source text defines discrete random variables but does not mention continuous random variables or probability density functions, making the answer partially external knowledge."
+    },
+    {
+      "question": "What is the definition of independent and identically distributed (i.i.d.) random variables?",
+      "composite": 1.0,
       "groundedness": 1.0,
       "clarity": 1.0,
-      "uniqueness": 0.5,
-      "difficulty_calibration": 0.8,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
       "routing": "auto_approve",
-      "justification": "The content is well-supported by the source text, though it overlaps significantly with the existing question regarding the primary objective of an SVM."
+      "justification": "The answer accurately reflects the definition provided in the source text and addresses a concept not covered by existing questions."
+    },
+    {
+      "question": "How is the joint distribution of independent random variables calculated?",
+      "composite": 0.95,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 0.5,
+      "routing": "auto_approve",
+      "justification": "The content is well-supported and clear, but the difficulty is mislabeled as 'hard' as this is a fundamental definition in probability theory."
+    },
+    {
+      "question": "In the context of Bernoulli random variables, what does the parameter p represent?",
+      "composite": 1.0,
+      "groundedness": 1.0,
+      "clarity": 1.0,
+      "uniqueness": 1.0,
+      "difficulty_calibration": 1.0,
+      "routing": "auto_approve",
+      "justification": "The answer is directly supported by the provided text regarding Bernoulli random variables and coin tossing. It tests a fundamental definition not covered by the existing questions."
     }
   ]
 }
