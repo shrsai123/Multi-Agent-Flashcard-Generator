@@ -1,0 +1,170 @@
+{
+  "session_id": "f5ac55b7",
+  "role": "student",
+  "timestamp": "2026-04-11T23:11:27",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-11T23:10:49",
+    "session_id": "69835547",
+    "source_file": "PDF21-22-unsup.pdf",
+    "pipeline_duration_sec": 21.0,
+    "cards_requested": 6,
+    "cards_valid": 6,
+    "composite_mean": 0.98,
+    "composite_min": 0.92,
+    "composite_max": 1.0,
+    "groundedness_mean": 0.9833,
+    "clarity_mean": 1.0,
+    "auto_approved": 6,
+    "human_review": 0,
+    "auto_rejected": 0,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 1.0,
+    "cards_studied": 6,
+    "completion_rate": 1.0,
+    "total_reviews": 6,
+    "rating_distribution": {
+      "again": 0.0,
+      "hard": 0.0,
+      "good": 1.0,
+      "easy": 0.0
+    },
+    "session_duration_sec": 11.3
+  },
+  "quality_correlations": {
+    "high_quality_recall": 1.0,
+    "low_quality_recall": 0.0,
+    "quality_advantage": 1.0,
+    "high_quality_cards": 6,
+    "low_quality_cards": 0
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      3,
+      4,
+      5
+    ],
+    "pre_total": 5,
+    "post_total": 6,
+    "max_score": 10,
+    "learning_gain": 1,
+    "per_card": {
+      "0": {
+        "pre": 2,
+        "post": 2
+      },
+      "1": {
+        "pre": 1,
+        "post": 1
+      },
+      "3": {
+        "pre": 1,
+        "post": 1
+      },
+      "4": {
+        "pre": 0,
+        "post": 1
+      },
+      "5": {
+        "pre": 1,
+        "post": 1
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the core objective of the K-means clustering algorithm?",
+      "answer": "The objective of K-means is to cluster group data into K partitions by minimizing the sum of squared distances between each data point and its assigned cluster center.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 1,
+      "question": "How does the alternating minimization process function in the context of K-means?",
+      "answer": "It iteratively optimizes the objective function by fixing one set of variables (either cluster assignments or cluster centers) to solve for the other, repeating until convergence.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.92,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 2,
+      "question": "In the context of K-means, how are the cluster centers updated during the M-step?",
+      "answer": "The M-step updates each cluster center (Mj) by calculating the mean of all data samples assigned to that specific cluster.",
+      "difficulty": "medium",
+      "bloom_level": "apply",
+      "composite_score": 0.96,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 3,
+      "question": "What are three primary benefits of performing dimension reduction on a dataset?",
+      "answer": "Dimension reduction can reduce computational costs, decrease memory usage, and reduce noise present in the data.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 4,
+      "question": "How does PCA (Principal Component Analysis) differ from non-linear dimension reduction techniques like LLE or ISOMAP?",
+      "answer": "PCA finds a linear hyperplane that best fits the data, whereas LLE and ISOMAP are designed for non-linear dimension reduction.",
+      "difficulty": "medium",
+      "bloom_level": "analyze",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 5,
+      "question": "What is the relationship between SVD (Singular Value Decomposition) and PCA?",
+      "answer": "PCA can be performed using SVD by decomposing the centered data matrix X into UΣVᵀ, where the principal components are derived from the singular vectors and values.",
+      "difficulty": "hard",
+      "bloom_level": "understand",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    }
+  ],
+  "user_survey": {
+    "session_id": "f5ac55b7",
+    "role": "student",
+    "timestamp": "2026-04-11T23:11:27",
+    "trust": 4,
+    "satisfaction": 4,
+    "learning_value": 4,
+    "perceived_difficulty": "Just right",
+    "would_use_again": "Yes",
+    "free_text": "",
+    "study_confidence": 4,
+    "prefer_over_manual": 4,
+    "pre_test_total": 5,
+    "post_test_total": 6,
+    "learning_gain": 1
+  }
+}

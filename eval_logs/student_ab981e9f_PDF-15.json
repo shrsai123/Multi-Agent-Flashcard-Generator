@@ -1,0 +1,158 @@
+{
+  "session_id": "ab981e9f",
+  "role": "student",
+  "timestamp": "2026-04-11T23:52:36",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-11T23:48:52",
+    "session_id": "6be865c6",
+    "source_file": "PDF-15.pdf",
+    "pipeline_duration_sec": 64.4,
+    "cards_requested": 5,
+    "cards_valid": 5,
+    "composite_mean": 0.958,
+    "composite_min": 0.91,
+    "composite_max": 1.0,
+    "groundedness_mean": 0.9,
+    "clarity_mean": 1.0,
+    "auto_approved": 5,
+    "human_review": 0,
+    "auto_rejected": 0,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 0.0,
+    "cards_studied": 1,
+    "completion_rate": 0.2,
+    "total_reviews": 0,
+    "rating_distribution": {
+      "again": 0.0,
+      "hard": 0.0,
+      "good": 0.0,
+      "easy": 0.0
+    },
+    "session_duration_sec": 0
+  },
+  "quality_correlations": {
+    "high_quality_recall": 0.0,
+    "low_quality_recall": 0.0,
+    "quality_advantage": 0.0,
+    "high_quality_cards": 0,
+    "low_quality_cards": 0
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "pre_total": 10,
+    "post_total": 10,
+    "max_score": 10,
+    "learning_gain": 0,
+    "per_card": {
+      "0": {
+        "pre": 2,
+        "post": 2
+      },
+      "1": {
+        "pre": 2,
+        "post": 2
+      },
+      "2": {
+        "pre": 2,
+        "post": 2
+      },
+      "3": {
+        "pre": 2,
+        "post": 2
+      },
+      "4": {
+        "pre": 2,
+        "post": 2
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the defining characteristic of a Feedforward Neural Network (Multi-layer perceptron)?",
+      "answer": "It consists of neurons organized in multiple layers where the output of one layer serves as the input to the subsequent layer.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": null,
+      "sm2_reviews": 0,
+      "sm2_interval": 0
+    },
+    {
+      "index": 1,
+      "question": "How does the loss function choice differ between regression and multi-class classification tasks?",
+      "answer": "Regression typically uses the sum of squared errors to measure discrepancy, while multi-class classification uses cross-entropy, where the sum of output probabilities equals one.",
+      "difficulty": "medium",
+      "bloom_level": "analyze",
+      "composite_score": 1.0,
+      "routing": "auto_approve",
+      "sm2_first_rating": null,
+      "sm2_reviews": 0,
+      "sm2_interval": null
+    },
+    {
+      "index": 2,
+      "question": "What is the role of backpropagation in training a neural network?",
+      "answer": "Backpropagation is the process of computing the derivative of the loss function with respect to weights and biases, starting from the output layer and moving backwards through the hidden layers to update the parameters.",
+      "difficulty": "hard",
+      "bloom_level": "understand",
+      "composite_score": 0.91,
+      "routing": "auto_approve",
+      "sm2_first_rating": null,
+      "sm2_reviews": 0,
+      "sm2_interval": null
+    },
+    {
+      "index": 3,
+      "question": "Why are activation functions like Sigmoid, Tanh, or ReLU applied to the weighted sum in a neural network?",
+      "answer": "They introduce non-linearity to the network, which allows the model to learn and represent complex feature vectors for classification or regression tasks.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.96,
+      "routing": "auto_approve",
+      "sm2_first_rating": null,
+      "sm2_reviews": 0,
+      "sm2_interval": null
+    },
+    {
+      "index": 4,
+      "question": "In the context of weight regularization, which parameters are typically excluded?",
+      "answer": "Bias parameters (intercepts) are typically excluded from regularization.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 0.92,
+      "routing": "auto_approve",
+      "sm2_first_rating": null,
+      "sm2_reviews": 0,
+      "sm2_interval": null
+    }
+  ],
+  "user_survey": {
+    "session_id": "ab981e9f",
+    "role": "student",
+    "timestamp": "2026-04-11T23:52:34",
+    "trust": 4,
+    "satisfaction": 4,
+    "learning_value": 4,
+    "perceived_difficulty": "Just right",
+    "would_use_again": "Yes",
+    "free_text": "",
+    "study_confidence": 4,
+    "prefer_over_manual": 4,
+    "pre_test_total": 10,
+    "post_test_total": 10,
+    "learning_gain": 0
+  }
+}

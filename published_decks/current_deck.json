@@ -1,26 +1,26 @@
 {
-  "published_at": "2026-04-10T17:48:30",
+  "published_at": "2026-04-12T00:13:31",
   "metadata": {
-    "source_filename": "PDF-8.pdf",
-    "content_type": "theory",
-    "provider": "gemini",
-    "model": "gemini-3.1-flash-lite-preview",
-    "session_id": "42195c3d",
+    "source_filename": "PDF21-22-unsup.pdf",
+    "content_type": "mixed",
+    "provider": "huggingface",
+    "model": "meta-llama/Llama-3.1-8B-Instruct",
+    "session_id": "f0d99e4e",
     "pipeline_metrics": {
-      "timestamp": "2026-04-10T17:48:10",
-      "session_id": "42195c3d",
-      "source_file": "PDF-8.pdf",
-      "pipeline_duration_sec": 28.0,
-      "cards_requested": 5,
-      "cards_valid": 5,
-      "composite_mean": 0.93,
-      "composite_min": 0.78,
-      "composite_max": 1.0,
-      "groundedness_mean": 0.88,
-      "clarity_mean": 0.98,
-      "auto_approved": 4,
-      "human_review": 1,
-      "auto_rejected": 0,
+      "timestamp": "2026-04-12T00:11:57",
+      "session_id": "f0d99e4e",
+      "source_file": "PDF21-22-unsup.pdf",
+      "pipeline_duration_sec": 35.7,
+      "cards_requested": 6,
+      "cards_valid": 6,
+      "composite_mean": 0.6817,
+      "composite_min": 0.24,
+      "composite_max": 0.86,
+      "groundedness_mean": 0.7,
+      "clarity_mean": 0.9,
+      "auto_approved": 2,
+      "human_review": 3,
+      "auto_rejected": 1,
       "teacher_edits": 0,
       "teacher_overrides": 0,
       "gold_at_generation": 11,
@@ -29,97 +29,107 @@
   },
   "flashcards": [
     {
-      "question": "What is the primary objective of Cross-Entropy (CE) loss in the context of multiclass classification?",
-      "answer": "The objective is to minimize the CE loss function across the training dataset by adjusting model parameters to correctly predict the class index y, represented as a one-hot encoded vector.",
+      "question": "What is the purpose of using auxiliary variables in the problem-solving process?",
+      "answer": "Auxiliary variables are used to introduce an assignment and solve the problem using alternating minimization.",
       "difficulty": "medium",
       "bloom_level": "understand",
       "source_chunk_id": "chunk_0",
       "question_type": "concept"
     },
     {
-      "question": "What is the definition of independent and identically distributed (i.i.d.) random variables?",
-      "answer": "Random variables are i.i.d. if they all originate from the same probability distribution and are mutually independent of one another.",
+      "question": "What is PCA and what is its main goal?",
+      "answer": "PCA (Principal Component Analysis) is a linear dimension reduction technique that aims to find a hyperplane that best fits the data.",
       "difficulty": "medium",
-      "bloom_level": "remember",
+      "bloom_level": "understand",
       "source_chunk_id": "chunk_3",
       "question_type": "definition"
     },
     {
-      "question": "How is the joint distribution of independent random variables calculated?",
-      "answer": "For independent random variables X and Y, the joint distribution is the product of their individual marginal distributions: P(X, Y) = P(X)P(Y).",
-      "difficulty": "hard",
-      "bloom_level": "apply",
-      "source_chunk_id": "chunk_2",
-      "question_type": "application"
-    },
-    {
-      "question": "In the context of Bernoulli random variables, what does the parameter p represent?",
-      "answer": "In a Bernoulli distribution (e.g., tossing a coin), p represents the probability of a specific outcome, such as the probability of the result being 'heads'.",
+      "question": "What is the main goal of alternating minimization?",
+      "answer": "Alternating minimization is used to solve the problem by iteratively minimizing one variable while fixing the other.",
       "difficulty": "easy",
       "bloom_level": "remember",
-      "source_chunk_id": "chunk_3",
-      "question_type": "definition"
+      "source_chunk_id": "chunk_1",
+      "question_type": "concept"
     },
     {
-      "question": "How does a discrete random variable differ from a continuous random variable?",
-      "answer": "A discrete random variable takes on specific, countable outcomes (e.g., 0 or 1), whereas a continuous random variable takes on values within a range and is associated with a probability density function (PDF).",
+      "question": "What is the purpose of dimension reduction in supervised learning?",
+      "answer": "Dimension reduction is used to find a low-dimensional representation of the data, reducing computation and noise.",
       "difficulty": "medium",
-      "bloom_level": "analyze",
-      "source_chunk_id": "chunk_1",
-      "question_type": "comparison"
+      "bloom_level": "understand",
+      "source_chunk_id": "chunk_2",
+      "question_type": "concept"
+    },
+    {
+      "question": "What are the benefits of using PCA for dimension reduction?",
+      "answer": "PCA can reconstruct the data very well because it reduces the dimension of the data and removes noise.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "source_chunk_id": "chunk_4",
+      "question_type": "application"
     }
   ],
   "gold_examples": [],
   "quality_scores": [
     {
-      "question": "What is the primary objective of Cross-Entropy (CE) loss in the context of multiclass classification?",
-      "composite": 0.92,
-      "groundedness": 0.9,
+      "question": "What is the purpose of using auxiliary variables in the problem-solving process?",
+      "composite": 0.86,
+      "groundedness": 0.8,
       "clarity": 0.9,
       "uniqueness": 1.0,
-      "difficulty_calibration": 0.9,
+      "difficulty_calibration": 0.7,
       "routing": "auto_approve",
-      "justification": "The answer accurately reflects the source material's discussion on generalizing binary classification to multiclass using one-hot encoding, though the source text is heavily corrupted by OCR errors."
+      "justification": "The answer is supported by the source text, but the explanation is not entirely explicit. The difficulty level is somewhat underestimated, as the concept requires a basic understanding of the problem-solving process."
     },
     {
-      "question": "How does a discrete random variable differ from a continuous random variable?",
-      "composite": 0.78,
-      "groundedness": 0.5,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 0.8,
+      "question": "What is the main goal of alternating minimization?",
+      "composite": 0.69,
+      "groundedness": 0.8,
+      "clarity": 0.9,
+      "uniqueness": 0.4,
+      "difficulty_calibration": 0.2,
       "routing": "human_review",
-      "justification": "The source text defines discrete random variables but does not mention continuous random variables or probability density functions, making the answer partially external knowledge."
+      "justification": "The answer is supported by the source text, but it's a generalization. The question is clear, but it's not unique as it's similar to another question in the deck."
     },
     {
-      "question": "What is the definition of independent and identically distributed (i.i.d.) random variables?",
-      "composite": 1.0,
-      "groundedness": 1.0,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 1.0,
-      "routing": "auto_approve",
-      "justification": "The answer accurately reflects the definition provided in the source text and addresses a concept not covered by existing questions."
+      "question": "What is the purpose of dimension reduction in supervised learning?",
+      "composite": 0.78,
+      "groundedness": 0.8,
+      "clarity": 0.9,
+      "uniqueness": 0.6,
+      "difficulty_calibration": 0.7,
+      "routing": "human_review",
+      "justification": "The answer is supported by the source text, but it's a generalization of multiple concepts. The question is clear and concise, but it's not distinct from other questions in the deck."
     },
     {
-      "question": "How is the joint distribution of independent random variables calculated?",
-      "composite": 0.95,
+      "question": "What is PCA and what is its main goal?",
+      "composite": 0.85,
       "groundedness": 1.0,
       "clarity": 1.0,
-      "uniqueness": 1.0,
+      "uniqueness": 0.5,
       "difficulty_calibration": 0.5,
       "routing": "auto_approve",
-      "justification": "The content is well-supported and clear, but the difficulty is mislabeled as 'hard' as this is a fundamental definition in probability theory."
+      "justification": "The answer is well-supported by the source text, but the question is somewhat similar to existing questions in the deck, and the difficulty level is not perfectly calibrated as the concept is not extremely complex."
     },
     {
-      "question": "In the context of Bernoulli random variables, what does the parameter p represent?",
-      "composite": 1.0,
-      "groundedness": 1.0,
-      "clarity": 1.0,
-      "uniqueness": 1.0,
-      "difficulty_calibration": 1.0,
-      "routing": "auto_approve",
-      "justification": "The answer is directly supported by the provided text regarding Bernoulli random variables and coin tossing. It tests a fundamental definition not covered by the existing questions."
+      "question": "How does SVD decompose a matrix?",
+      "composite": 0.24,
+      "groundedness": 0.0,
+      "clarity": 0.8,
+      "uniqueness": 0.0,
+      "difficulty_calibration": 0.0,
+      "routing": "auto_reject",
+      "justification": "The answer is not supported by the source text, which appears to be a jumbled collection of words and phrases. The question is also not unique, as it is a direct question about a concept that is already covered by another question in the deck."
+    },
+    {
+      "question": "What are the benefits of using PCA for dimension reduction?",
+      "composite": 0.67,
+      "groundedness": 0.8,
+      "clarity": 0.9,
+      "uniqueness": 0.4,
+      "difficulty_calibration": 0.0,
+      "routing": "human_review",
+      "justification": "The answer is supported by the source text, but it is a general statement and not a direct quote. The difficulty is labeled as 'easy' but the answer is quite complex and requires understanding of PCA and its benefits."
     }
   ]
 }

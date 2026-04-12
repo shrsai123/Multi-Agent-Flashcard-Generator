@@ -1,31 +1,36 @@
-import json
 import threading
+import requests
 import streamlit as st
- 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+
 def _get_url():
     try:
-        return st.secrets.get("WEBHOOK_URL", "")
+        return st.secrets.get("WEBHOOK_URL") or os.getenv("WEBHOOK_URL", "")
     except Exception:
-        return ""
- 
-def _post(data):
-    """POST data in a background thread so it doesn't block the UI."""
+        return os.getenv("WEBHOOK_URL", "")
+
+def _post(data: dict):
     url = _get_url()
+    print("[cloud_save] url =", url)
+
     if not url:
+        print("[cloud_save] WEBHOOK_URL not configured")
         return
+
     try:
-        import requests
-        requests.post(url, json=data, timeout=10)
+        resp = requests.post(url, json=data, timeout=10)
+        print("[cloud_save] status =", resp.status_code)
+        print("[cloud_save] body =", resp.text)
     except Exception as e:
-        print(f"[cloud_save] POST failed: {e}")
- 
+        print(f"[cloud_save] POST exception: {e}")
+
 def save_eval_to_sheets(eval_data: dict):
-    """Send full eval export to the webhook."""
     payload = {**eval_data, "type": "eval"}
-    threading.Thread(target=_post, args=(payload,), daemon=True).start()
- 
+    _post(payload)   # synchronous for debugging
+
 def save_survey_to_sheets(survey_data: dict):
-    """Send survey response to the webhook."""
     payload = {**survey_data, "type": "survey"}
-    threading.Thread(target=_post, args=(payload,), daemon=True).start()
- 
+    _post(payload)   # synchronous for debugging

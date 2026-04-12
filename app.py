@@ -21,6 +21,7 @@ from core.eval_metrics import (
 from agents.content_extraction import extract_text_from_pdf, content_extraction_node
 from agents.flashcard_generation import flashcard_generation_node
 from agents.quality_check import quality_check_node
+from cloud_save import save_eval_to_sheets, save_survey_to_sheets
 
 st.set_page_config(
     page_title="CardCraft AI",
@@ -223,6 +224,8 @@ def init_state():
         "sm2_current_idx": None,    # index of card currently being studied in SM2 mode
         "pipeline_metrics": {},     # logged after each pipeline run
         "study_session_id": None,   # unique ID per study session
+        "last_pipeline_sync_signature": None,
+        "last_eval_sync_signature": None,
         # ── User survey ──
         "survey_submitted": False,
         "survey_responses": None,
@@ -344,6 +347,44 @@ def _log_pipeline_metrics(scored_cards, approved, human_queue, rejected,
         raw_cards, gold_at_gen_time, duration_s, dict(st.session_state))
     st.session_state.pipeline_metrics = metrics
     return metrics
+
+
+def _sync_pipeline_metrics_if_changed():
+    """Send pipeline metrics once per unique payload."""
+    metrics = st.session_state.get("pipeline_metrics", {})
+    if not metrics:
+        return
+
+    payload = {
+        "event": "pipeline_metrics",
+        "session_id": st.session_state.get("study_session_id", ""),
+        "role": st.session_state.get("role", "unknown"),
+        "source_file": st.session_state.get("source_filename", ""),
+        "pipeline_metrics": metrics,
+    }
+
+    signature = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
+    if st.session_state.get("last_pipeline_sync_signature") == signature:
+        return
+
+    save_eval_to_sheets(payload)
+    st.session_state.last_pipeline_sync_signature = signature
+
+
+def _sync_full_eval_if_changed(final_deck, scored_cards):
+    """Send full eval snapshot only when something materially changed."""
+    eval_data = build_comprehensive_eval_export(
+        dict(st.session_state), final_deck, scored_cards
+    )
+
+    payload = {**eval_data, "event": "full_eval"}
+    signature = json.dumps(payload, sort_keys=True, ensure_ascii=False, default=str)
+
+    if st.session_state.get("last_eval_sync_signature") != signature:
+        save_eval_to_sheets(payload)
+        st.session_state.last_eval_sync_signature = signature
+
+    return eval_data
 
 
 # ── UI helpers ──────────────────────────────────────────────────
@@ -1501,6 +1542,12 @@ elif st.session_state.step == "study":
                     survey_file = EVAL_LOG_DIR / f"survey_{sid}.json"
                     with open(survey_file, "w", encoding="utf-8") as f:
                         json.dump(responses, f, indent=2)
+
+                    save_survey_to_sheets(responses)
+
+                    # force full eval snapshot to re-sync because it now includes survey data
+                    st.session_state.last_eval_sync_signature = None
+
                     st.rerun()
 
     # ── Export ──
@@ -1534,7 +1581,7 @@ elif st.session_state.step == "study":
             st.markdown('<div style="font-size:0.87rem;font-weight:600;margin-bottom:0.4rem;">📊 Evaluation Data</div>', unsafe_allow_html=True)
             st.markdown('<div style="font-size:0.76rem;color:var(--text3);margin-bottom:0.75rem;">All 5 metric layers: pipeline quality, teacher review, learning outcomes, quality-learning correlations, and adaptive loop data.</div>', unsafe_allow_html=True)
 
-            eval_data = build_comprehensive_eval_export(dict(st.session_state), final_deck, scored)
+            eval_data = _sync_full_eval_if_changed(final_deck, scored)
             eval_json = json.dumps(eval_data, indent=2, ensure_ascii=False)
             sid = st.session_state.get("study_session_id", "session")
 
@@ -1584,7 +1631,7 @@ elif st.session_state.step == "study":
                 st.markdown('</div>', unsafe_allow_html=True)
 
             # Silently save eval data for the researcher (student doesn't see this)
-            eval_data = build_comprehensive_eval_export(dict(st.session_state), final_deck, scored)
+            eval_data = _sync_full_eval_if_changed(final_deck, scored)
             sid = st.session_state.get("study_session_id", "session")
             eval_file = EVAL_LOG_DIR / f"student_{sid}_{stem}.json"
             with open(eval_file, "w", encoding="utf-8") as f:

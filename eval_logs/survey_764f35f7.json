@@ -1,7 +1,7 @@
 {
-  "session_id": "e68cb633",
+  "session_id": "764f35f7",
   "role": "student",
-  "timestamp": "2026-04-10T17:50:08",
+  "timestamp": "2026-04-11T22:54:51",
   "trust": 4,
   "satisfaction": 4,
   "learning_value": 4,
@@ -10,7 +10,7 @@
   "free_text": "",
   "study_confidence": 4,
   "prefer_over_manual": 4,
-  "pre_test_total": 6,
-  "post_test_total": 10,
-  "learning_gain": 4
+  "pre_test_total": 7,
+  "post_test_total": 8,
+  "learning_gain": 1
 }

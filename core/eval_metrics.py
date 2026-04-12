@@ -209,6 +209,5 @@ def build_comprehensive_eval_export(session_state: dict, final_deck: list,
         "learning_metrics": compute_learning_metrics(session_state, len(final_deck)),
         "quality_correlations": compute_correlations(session_state, scored_cards, final_deck),
         "pre_post_test": pre_post,
-        "flashcards": per_card,
-        "user_survey": session_state.get("survey_responses", None),
+        "flashcards": per_card
     }

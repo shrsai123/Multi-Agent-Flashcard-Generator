@@ -1,0 +1,142 @@
+{
+  "session_id": "1df7367a",
+  "role": "student",
+  "timestamp": "2026-04-12T00:16:02",
+  "pipeline_metrics": {
+    "timestamp": "2026-04-12T00:11:57",
+    "session_id": "f0d99e4e",
+    "source_file": "PDF21-22-unsup.pdf",
+    "pipeline_duration_sec": 35.7,
+    "cards_requested": 6,
+    "cards_valid": 6,
+    "composite_mean": 0.6817,
+    "composite_min": 0.24,
+    "composite_max": 0.86,
+    "groundedness_mean": 0.7,
+    "clarity_mean": 0.9,
+    "auto_approved": 2,
+    "human_review": 3,
+    "auto_rejected": 1,
+    "teacher_edits": 0,
+    "teacher_overrides": 0,
+    "gold_at_generation": 11,
+    "gold_added": 0
+  },
+  "learning_metrics": {
+    "first_attempt_recall": 1.0,
+    "cards_studied": 5,
+    "completion_rate": 1.0,
+    "total_reviews": 5,
+    "rating_distribution": {
+      "again": 0.0,
+      "hard": 0.0,
+      "good": 1.0,
+      "easy": 0.0
+    },
+    "session_duration_sec": 117.0
+  },
+  "quality_correlations": {
+    "high_quality_recall": 1.0,
+    "low_quality_recall": 1.0,
+    "quality_advantage": 0.0,
+    "high_quality_cards": 2,
+    "low_quality_cards": 3
+  },
+  "pre_post_test": {
+    "test_card_indices": [
+      0,
+      1,
+      2,
+      3,
+      4
+    ],
+    "pre_total": 5,
+    "post_total": 5,
+    "max_score": 10,
+    "learning_gain": 0,
+    "per_card": {
+      "0": {
+        "pre": 2,
+        "post": 2
+      },
+      "1": {
+        "pre": 1,
+        "post": 1
+      },
+      "2": {
+        "pre": 1,
+        "post": 1
+      },
+      "3": {
+        "pre": 0,
+        "post": 0
+      },
+      "4": {
+        "pre": 1,
+        "post": 1
+      }
+    }
+  },
+  "flashcards": [
+    {
+      "index": 0,
+      "question": "What is the purpose of using auxiliary variables in the problem-solving process?",
+      "answer": "Auxiliary variables are used to introduce an assignment and solve the problem using alternating minimization.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.86,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 1,
+      "question": "What is PCA and what is its main goal?",
+      "answer": "PCA (Principal Component Analysis) is a linear dimension reduction technique that aims to find a hyperplane that best fits the data.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.85,
+      "routing": "auto_approve",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 2,
+      "question": "What is the main goal of alternating minimization?",
+      "answer": "Alternating minimization is used to solve the problem by iteratively minimizing one variable while fixing the other.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 0.69,
+      "routing": "human_review",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 3,
+      "question": "What is the purpose of dimension reduction in supervised learning?",
+      "answer": "Dimension reduction is used to find a low-dimensional representation of the data, reducing computation and noise.",
+      "difficulty": "medium",
+      "bloom_level": "understand",
+      "composite_score": 0.78,
+      "routing": "human_review",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    },
+    {
+      "index": 4,
+      "question": "What are the benefits of using PCA for dimension reduction?",
+      "answer": "PCA can reconstruct the data very well because it reduces the dimension of the data and removes noise.",
+      "difficulty": "easy",
+      "bloom_level": "remember",
+      "composite_score": 0.67,
+      "routing": "human_review",
+      "sm2_first_rating": 4,
+      "sm2_reviews": 1,
+      "sm2_interval": 1
+    }
+  ]
+}
