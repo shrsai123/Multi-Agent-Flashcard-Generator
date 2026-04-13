@@ -2,34 +2,102 @@ import re
 from typing import List
 from langchain_core.documents import Document
 from langchain_classic.text_splitter import RecursiveCharacterTextSplitter
-
+from typing import Optional
 from core.models import FlashcardState
 from vector_store import VectorStoreManager
 
-def extract_text_from_pdf(pdf_path: str) -> str:
-    """Extract text from PDF using PyPDF (with pdfplumber fallback)."""
-    text = ""
+def extract_text_from_pdf(
+    pdf_path: str,
+    min_chars_threshold: int = 200,
+    ocr_dpi: int = 200,
+    max_ocr_pages: Optional[int] = None,
+) -> str:
+    """
+    Extract text from a PDF using:
+    1) pypdf
+    2) pdfplumber fallback
+    3) OCR fallback via pdf2image + pytesseract
+
+    Args:
+        pdf_path: path to the PDF file
+        min_chars_threshold: if extracted text is shorter than this, try fallback(s)
+        ocr_dpi: DPI for PDF-to-image conversion during OCR
+        max_ocr_pages: optionally limit OCR to first N pages to control cost/time
+
+    Returns:
+        Extracted text as a single string.
+    """
+    text_parts = []
+
+    # -------------------------
+    # 1) Native extraction: pypdf
+    # -------------------------
     try:
         from pypdf import PdfReader
+
         reader = PdfReader(pdf_path)
         for page in reader.pages:
             page_text = page.extract_text()
             if page_text:
-                text += page_text + "\n\n"
-    except Exception:
-        pass
+                text_parts.append(page_text)
+    except Exception as e:
+        print(f"[extract_text_from_pdf] pypdf failed: {e}")
 
-    if len(text.strip()) < 100:
+    text = "\n\n".join(text_parts).strip()
+
+    # -------------------------
+    # 2) Fallback: pdfplumber
+    # -------------------------
+    if len(text) < min_chars_threshold:
+        text_parts = []
         try:
             import pdfplumber
+
             with pdfplumber.open(pdf_path) as pdf:
                 for page in pdf.pages:
                     page_text = page.extract_text()
                     if page_text:
-                        text += page_text + "\n\n"
-        except Exception:
-            pass
+                        text_parts.append(page_text)
+        except Exception as e:
+            print(f"[extract_text_from_pdf] pdfplumber failed: {e}")
+
+        alt_text = "\n\n".join(text_parts).strip()
+        if len(alt_text) > len(text):
+            text = alt_text
+
+    # -------------------------
+    # 3) OCR fallback: scanned/image PDFs
+    # -------------------------
+    if len(text) < min_chars_threshold:
+        ocr_parts = []
+        try:
+            from pdf2image import convert_from_path
+            import pytesseract
+
+            images = convert_from_path(
+                pdf_path,
+                dpi=ocr_dpi,
+                first_page=1,
+                last_page=max_ocr_pages,
+            )
+
+            for i, image in enumerate(images, start=1):
+                try:
+                    page_text = pytesseract.image_to_string(image)
+                    if page_text and page_text.strip():
+                        ocr_parts.append(page_text.strip())
+                except Exception as page_err:
+                    print(f"[extract_text_from_pdf] OCR failed on page {i}: {page_err}")
+
+        except Exception as e:
+            print(f"[extract_text_from_pdf] OCR fallback unavailable/failed: {e}")
+
+        ocr_text = "\n\n".join(ocr_parts).strip()
+        if len(ocr_text) > len(text):
+            text = ocr_text
+
     return text.strip()
+
 
 def detect_content_type(text: str, llm=None) -> str:
     """Classify content as 'theory', 'code', 'math', or 'mixed'."""

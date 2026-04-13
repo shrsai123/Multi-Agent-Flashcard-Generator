@@ -13,6 +13,8 @@ sentence-transformers
 # ─── PDF Parsing ───
 pypdf
 pdfplumber
+pdf2image 
+pytesseract
 
 # ─── Frontend ───
 streamlit

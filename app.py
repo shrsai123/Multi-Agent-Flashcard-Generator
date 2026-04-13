@@ -216,7 +216,7 @@ def init_state():
         "published_deck": [],
         "published_gold": [],
         "teacher_authed": False, "pw_error": False,
-        "gen_provider": "gemini", "gen_model": "gemini-3.1-flash-lite-preview",
+        "gen_provider": "gemini", "gen_model": "gemini-3.1-pro-preview",
         "gen_num_cards": 5, "gen_api_key": "",
         # ── Evaluation metrics ──
         "flip_times": {},           # {card_idx: [timestamp, ...]}
@@ -636,6 +636,13 @@ if st.session_state.role == "teacher" and st.session_state.step == "upload":
                 st.rerun()
         else:
             st.button("🚀 Generate Flashcards", use_container_width=True, disabled=True)
+
+        st.markdown('<div class="btn-ghost" style="margin-top:0.75rem">', unsafe_allow_html=True)
+        if st.button("Switch Role", use_container_width=True, key="teacher_switch_role_upload"):
+            full_reset()
+            st.rerun()
+        st.markdown('</div>', unsafe_allow_html=True)
+
         st.markdown("""
         <div style="margin-top:1.25rem;background:rgba(34,211,238,0.04);border:1px solid rgba(34,211,238,0.15);border-radius:var(--radius-sm);padding:0.85rem 1.1rem;">
           <div style="font-size:0.78rem;font-weight:600;color:var(--cyan);margin-bottom:0.3rem;">⚠ Having trouble?</div>
@@ -657,7 +664,7 @@ if st.session_state.role == "teacher" and st.session_state.step == "upload":
 
         with st.expander("⚙️ Generation Settings", expanded=False):
             PROVIDERS = {
-                "gemini":      {"label": "Google Gemini",       "default_model": "gemini-3.1-flash-lite-preview",              "key_label": "Gemini API Key",    "key_link": "https://ai.google.dev/gemini-api/docs/api-key", "key_site": "ai.google.dev", "key_env": "GEMINI_API_KEY"},
+                "gemini":      {"label": "Google Gemini",       "default_model": "gemini-3.1-pro-preview",              "key_label": "Gemini API Key",    "key_link": "https://ai.google.dev/gemini-api/docs/api-key", "key_site": "ai.google.dev", "key_env": "GEMINI_API_KEY"},
                 "huggingface": {"label": "HuggingFace (Llama)", "default_model": "meta-llama/Llama-3.1-8B-Instruct", "key_label": "HuggingFace Token", "key_link": "https://huggingface.co/settings/tokens",       "key_site": "huggingface.co","key_env": "HF_TOKEN"},
             }
             provider = st.radio("LLM Provider", options=list(PROVIDERS.keys()),
@@ -692,6 +699,12 @@ elif st.session_state.role == "teacher" and st.session_state.step == "generating
         h = st.empty()
         h.markdown(f'<div class="pipe-step pending"><div class="pipe-icon pending">{icon}</div><div style="flex:1"><div class="pipe-label" style="color:var(--text3)">{label}</div><div class="pipe-detail">{detail}</div></div><span class="pipe-badge pending">waiting</span></div>', unsafe_allow_html=True)
         holders.append(h)
+
+    st.markdown('<div class="btn-ghost" style="margin-top:1rem">', unsafe_allow_html=True)
+    if st.button("Switch Role", use_container_width=True, key="teacher_switch_role_generating"):
+        full_reset()
+        st.rerun()
+    st.markdown('</div>', unsafe_allow_html=True)
 
     def upd(idx, state, detail_override=""):
         icon, label, detail = PIPE[idx]; d = detail_override or detail
@@ -822,6 +835,10 @@ elif st.session_state.role == "teacher" and st.session_state.step == "review":
                 for sc in st.session_state.human_queue: all_cards.append(sc.card)
                 st.session_state.approved_cards = all_cards; st.session_state.step = "study"; st.rerun()
             st.markdown('</div>', unsafe_allow_html=True)
+            st.markdown('<div class="btn-ghost" style="margin-top:0.75rem">', unsafe_allow_html=True)
+            if st.button("Switch Role", use_container_width=True, key="teacher_switch_role_locked_review"):
+                full_reset(); st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
         st.stop()
 
     # ── Authenticated Dashboard ──
@@ -834,13 +851,21 @@ elif st.session_state.role == "teacher" and st.session_state.step == "review":
     scores_list = [s.composite_score for s in scored] if scored else [0]
     avg_score = sum(scores_list) / len(scores_list)
 
-    col_hd, col_hb = st.columns([3, 1])
+    col_hd, col_hb = st.columns([3, 1.35])
     with col_hd:
         st.markdown(f'<div><div class="sec-title">Teacher Review Dashboard</div><div class="sec-sub"><b style="color:var(--text)">{st.session_state.source_filename}</b> · Content type: <b style="color:var(--violet2)">{st.session_state.content_type}</b></div></div>', unsafe_allow_html=True)
     with col_hb:
-        st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-        if st.button("↩ New Upload", use_container_width=True): reset(); st.rerun()
-        st.markdown('</div>', unsafe_allow_html=True)
+        b1, b2 = st.columns(2)
+        with b1:
+            st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+            if st.button("↩ New Upload", use_container_width=True, key="teacher_new_upload_review"):
+                reset(); st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
+        with b2:
+            st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+            if st.button("Switch Role", use_container_width=True, key="teacher_switch_role_review"):
+                full_reset(); st.rerun()
+            st.markdown('</div>', unsafe_allow_html=True)
 
     st.markdown(f"""
     <div class="metric-strip">
@@ -1071,14 +1096,21 @@ elif st.session_state.step == "study":
         st.markdown(f'<div><div class="sec-title">Study Mode</div><div class="sec-sub"><b style="color:var(--text)">{st.session_state.source_filename}</b> · {len(final_deck)} cards · {st.session_state.content_type}</div></div>', unsafe_allow_html=True)
     with sb:
         if st.session_state.role == "teacher":
-            sb1, sb2 = st.columns(2)
+            sb1, sb2, sb3 = st.columns(3)
             with sb1:
                 st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-                if st.button("← Review", use_container_width=True): st.session_state.step = "review"; st.rerun()
+                if st.button("← Review", use_container_width=True, key="teacher_back_review_study"):
+                    st.session_state.step = "review"; st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
             with sb2:
                 st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
-                if st.button("↩ New Upload", use_container_width=True): reset(); st.rerun()
+                if st.button("↩ New Upload", use_container_width=True, key="teacher_new_upload_study"):
+                    reset(); st.rerun()
+                st.markdown('</div>', unsafe_allow_html=True)
+            with sb3:
+                st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
+                if st.button("Switch Role", use_container_width=True, key="teacher_switch_role_study"):
+                    full_reset(); st.rerun()
                 st.markdown('</div>', unsafe_allow_html=True)
         else:
             st.markdown('<div class="btn-ghost">', unsafe_allow_html=True)
