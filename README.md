@@ -206,5 +206,4 @@ Developed as **CardCraft: Multi-Agent Flashcard Generation System with Teacher-i
 - Shreyas Sai Raman
 - Umar Javeed Altaf
 
-## License
-Add a license section here once you choose one (for example: MIT, Apache-2.0, or GPL-3.0).
+
